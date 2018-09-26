@@ -1,0 +1,217 @@
+function Angles = getAngles(Annotations)
+%%
+
+kernel_width = 2;
+kernel_size = 5;
+kernel = normpdf(-kernel_size:kernel_size,0,kernel_width);
+filter = kernel./ sum(kernel);
+
+
+
+
+if isfield(Annotations,'Tracker')
+    P = Annotations.Tracker.Parameters_clean;
+    N = Annotations.Tracker.Nose;
+    H = Annotations.Tracker.Headvec;
+    T = Annotations.Tracker.Traces_clean;
+    
+    nframes = size(T,1);
+    
+    Angles.Tracker.r_min(1:nframes) = NaN;
+    Angles.Tracker.r_max(1:nframes) = NaN;
+    Angles.Tracker.l_min(1:nframes) = NaN;
+    Angles.Tracker.l_max(1:nframes) = NaN;
+    
+    for i = 1:nframes
+        if isempty(P{i})
+            continue
+        end
+        
+        n = N(i,:);
+        h = H(i,:);
+        y = @(x)  x.*h(1)/h(2) + (n(1)-n(2).*h(1)/h(2));
+        
+        if h(1)/h(2) > 0
+            sgn = 1;
+        else
+            sgn = -1;
+        end
+        
+        l = sgn.*(y(P{i}(:,2)) - P{i}(:,1));
+        
+        l_angles = P{i}(l<=0,6);
+        l_weights = P{i}(l<=0,7);
+        
+        [~, l_sort] = sort(l_angles);
+        n_left = length(l_angles);
+        if mod(n_left,2) == 0
+            l_max_idx = l_sort(1:n_left/2);
+            l_min_idx = l_sort(n_left/2+1:end);
+        elseif mod(n_left,2) == 1
+            l_max_idx = l_sort(1:ceil(n_left/2));
+            l_min_idx = l_sort(ceil(n_left/2)+1:end);
+        end
+        
+        Angles.Tracker.l_min(i) = sum( l_angles(l_min_idx).*l_weights(l_min_idx))/ sum(l_weights(l_min_idx));
+        Angles.Tracker.l_max(i) = sum( l_angles(l_max_idx).*l_weights(l_max_idx))/ sum(l_weights(l_max_idx));
+        
+        r_angles = P{i}(l>0,6);
+        r_weights = P{i}(l>0,7);
+        
+        [~, r_sort] = sort(r_angles);
+        n_right = length(r_angles);
+        if mod(n_right, 2) == 0
+            r_min_idx = r_sort(1:n_right/2);
+            r_max_idx = r_sort(n_right/2+1:end);
+        elseif mod(n_right, 2) == 1
+            r_min_idx = r_sort(1:ceil(n_right/2));
+            r_max_idx = r_sort(ceil(n_right/2)+1:end);
+        end
+        
+        Angles.Tracker.r_min(i) = sum( r_angles(r_min_idx).*r_weights(r_min_idx))/ sum(r_weights(r_min_idx));
+        Angles.Tracker.r_max(i) = sum( r_angles(r_max_idx).*r_weights(r_max_idx))/ sum(r_weights(r_max_idx));
+        
+        
+    end
+    
+    Angles.Tracker.r_min = fillGaps(Angles.Tracker.r_min);    
+    Angles.Tracker.r_max = fillGaps(Angles.Tracker.r_max);
+    Angles.Tracker.l_min = fillGaps(Angles.Tracker.l_min);
+    Angles.Tracker.l_max = fillGaps(Angles.Tracker.l_max);
+    
+    
+    
+    Angles.Tracker.r_min_filtered = conv(Angles.Tracker.r_min, filter, 'same');    
+    [Angles.Tracker.r_min_peaks, Angles.Tracker.r_min_troghs] = addPeaks(Angles.Tracker.r_min_filtered);  
+    Angles.Tracker.r_max_filtered = conv(Angles.Tracker.r_max, filter, 'same');
+    [Angles.Tracker.r_max_peaks, Angles.Tracker.r_max_troghs] = addPeaks(Angles.Tracker.r_max_filtered);
+    Angles.Tracker.l_min_filtered = conv(Angles.Tracker.l_min, filter, 'same');
+    [Angles.Tracker.l_min_peaks, Angles.Tracker.l_min_troghs] = addPeaks(Angles.Tracker.l_min_filtered);
+    Angles.Tracker.l_max_filtered = conv(Angles.Tracker.l_max, filter, 'same');
+    [Angles.Tracker.l_max_peaks, Angles.Tracker.l_max_troghs] = addPeaks(Angles.Tracker.l_max_filtered);
+    
+end
+
+
+
+%%
+
+
+
+if isfield(Annotations, 'Manual')
+    L = Annotations.Manual.Labels;
+    P = Annotations.Manual.Parameters;
+    
+    nframes = size(L,2);
+    
+    Angles.Manual.r_min(1:nframes) = NaN;
+    Angles.Manual.r_max(1:nframes) = NaN;
+    Angles.Manual.l_min(1:nframes) = NaN;
+    Angles.Manual.l_max(1:nframes) = NaN;
+    
+    for i = 1:nframes
+        if isempty(L{i})
+            continue
+        end
+        lidx = [];
+        l = L{i};
+        for j = 1:length(l)
+            if ~isempty(l{j}) && l{j}(1) == 'L'
+                lidx(end+1) = j;
+            end
+        end
+        
+        
+        if ~isempty(lidx)
+            l_angles = P{i}(lidx, 6);
+            Angles.Manual.l_min(i) = max(l_angles);
+            Angles.Manual.l_max(i) = min(l_angles);
+        end
+        
+        
+        ridx = [];
+        for j = 1:length(l)
+            if ~isempty(l{j}) && l{j}(1) == 'R'
+                ridx(end+1) = j;
+            end
+        end
+        
+        if ~isempty(ridx)
+            r_angles = P{i}(ridx,  6);
+            Angles.Manual.r_min(i) = min(r_angles);
+            Angles.Manual.r_max(i) = max(r_angles);
+        end
+        
+    end
+    %Angles.Manual.r_min = fillGaps(Angles.Manual.r_min);
+    %Angles.Manual.r_max = fillGaps(Angles.Manual.r_max);
+    %Angles.Manual.l_min = fillGaps(Angles.Manual.l_min);
+    %Angles.Manual.l_max = fillGaps(Angles.Manual.l_max);
+    
+    Angles.Manual.r_min_filtered = conv(Angles.Manual.r_min, filter, 'same');
+    [Angles.Manual.r_min_peaks, Angles.Manual.r_min_troghs] = addPeaks(Angles.Manual.r_min_filtered);  
+    Angles.Manual.r_max_filtered = conv(Angles.Manual.r_max, filter, 'same');
+    [Angles.Manual.r_max_peaks, Angles.Manual.r_max_troghs] = addPeaks(Angles.Manual.r_max_filtered);
+    Angles.Manual.l_min_filtered = conv(Angles.Manual.l_min, filter, 'same');
+    [Angles.Manual.l_min_peaks, Angles.Manual.l_min_troghs] = addPeaks(Angles.Manual.l_min_filtered);
+    Angles.Manual.l_max_filtered = conv(Angles.Manual.l_max, filter, 'same');
+    [Angles.Manual.l_max_peaks, Angles.Manual.l_max_troghs] = addPeaks(Angles.Manual.l_max_filtered);
+    
+end
+
+end
+
+
+function [peaks,troghs] = addPeaks(data)
+[~, peaks] = findpeaks(data, 'MinPeakDistance', 10);
+[~, troghs] = findpeaks(-data, 'MinPeakDistance', 10);
+end
+
+function data = fillGaps(data)
+%%
+
+start = find(~isnan(data), 1, 'first');
+last= find(~isnan(data), 1,'last');
+
+
+keep_nan = zeros(1, length(data));
+
+for i = start+1:last-1
+    if isnan(data(i))
+        d_next = data(i+1:end);
+        idx = find(~isnan(d_next), 1, 'first');
+        
+        if idx > 15
+            keep_nan(i:i+idx) = 1;
+        end
+        
+        if i - start > 2
+            startval = mean(data(i-2:i-1));
+        else
+            startval = data(i-1);
+        end
+        
+        
+        if ~isnan(data(i+idx+1))
+            endval = mean(data(i+idx:i+idx+1));
+        else
+            endval = data(i+idx);
+        end
+        
+        n_to_fill = idx;
+        for j = 1:idx
+            
+            if keep_nan(i+j-1)
+                continue
+            end
+            fillval = startval + j*(endval-startval)/n_to_fill;
+            data(i+j-1) = fillval;
+        end
+        
+        
+        
+    end
+end
+
+end
+
