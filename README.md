@@ -1,6 +1,8 @@
 # Matlab-Whisker-Tracker
 Welcome to the Matlab Whisker Tracker repository! This toolbox contains functions to extract, analyse and visualize whiskers in video recordings. To get started follow the [quickstart](#quickstart) below. The toolbox documentation is available at the [wiki page](https://github.com/DepartmentofNeurophysiology/Matlab-Whisker-Tracker/wiki).
 
+The MWT was build and tested in MATLAB 2016a and 2017a and requires the 'image processing' and 'signal processing' toolbox.
+
 <p align="center">
    <img  src="https://github.com/DepartmentofNeurophysiology/Matlab-Whisker-Tracker/wiki/Gifs/README.gif"
       width=500/> 
