@@ -81,7 +81,7 @@ handles.Settings = Settings;
 % Scan for files
 vid_files = scanfiles(PathName, Settings.video_extension, 10, Settings.format);
 track_files = scanfiles(PathName, '_Annotations_Tracker.mat', 10, '');
-keyboard
+
 
 for i = 1:length(vid_files)
     disp_names{i} = fullfile(vid_files(i).folder, vid_files(i).name); %#ok<*AGROW>

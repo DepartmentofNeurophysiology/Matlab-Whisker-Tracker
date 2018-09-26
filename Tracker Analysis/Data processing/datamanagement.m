@@ -28,7 +28,7 @@ if exist(fullfile( db.path_human_clicked_paper, 'overview.xlsx'), 'file')
     delete( fullfile( db.path_human_clicked_paper, 'overview.xlsx' ));
 end
 
-copy_data_to_path = 0;
+copy_data_to_path = 1;
 
 
 

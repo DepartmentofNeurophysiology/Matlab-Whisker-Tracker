@@ -89,6 +89,18 @@ switch( Settings.frame_select)
         end
         
         
+    case 'use_file'
+        load(fullfile(Settings.PathName, Settings.FrameFile));
+        for i = 1:size(Output, 2)
+            if strcmp(Output(i).Video, Settings.FileName)
+                break
+            end
+        end
+        Pairs = Output(i).Pairs;
+        frame_idx = zeros(1, Settings.Nframes);
+        for i = 1:size(Pairs, 2)
+            frame_idx(Pairs{i}(1):Pairs{i}(2)) = 1;
+        end
         
 end
 

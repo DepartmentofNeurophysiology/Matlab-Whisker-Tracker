@@ -73,7 +73,8 @@ Settings.nose_interval = 5;
 % Frames to track can be filtered using nose tracking. If nose trackng is
 % requried, set to 'NOSE_REQUIRED', if the nose has to be within the gap
 % set to, 'NOSE_INGAP'. If all frames should be tracked, set to 'DEFAULT'
-Settings.frame_select = 'ManualDataRequired';
+Settings.frame_select = 'use_file';
+Settings.FrameFile = 'Frames_full_pad.mat';
 
 % Minimum number of consecutive frames with nose
 Settings.min_consc_frames = 50;
