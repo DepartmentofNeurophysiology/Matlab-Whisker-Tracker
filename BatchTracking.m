@@ -62,7 +62,7 @@ time = clock;
 %% Track videos
 
 
-
+  
 
 
 for i = 1:size(Files,1)
@@ -97,6 +97,12 @@ for i = 1:size(Files,1)
         catch
             disp('Make sure to turn of --use external specfile-- in settings or update the section loading the video specifications.')
         end
+    elseif Settings.video_extension == '.mat'
+        m = matfile(Settings.Video);
+        data = m.movf(1,1);
+        Settings.Video_width = size(data.cdata,1);
+        Settings.Video_heigth = size(data.cdata,2);
+        Settings.Nframes = size(m.movf, 2);
         
         
     else

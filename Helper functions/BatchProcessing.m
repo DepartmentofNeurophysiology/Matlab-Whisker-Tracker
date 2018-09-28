@@ -80,6 +80,8 @@ handles.Settings = Settings;
 
 % Scan for files
 vid_files = scanfiles(PathName, Settings.video_extension, 10, Settings.format);
+
+    
 track_files = scanfiles(PathName, '_Annotations_Tracker.mat', 10, '');
 
 
@@ -252,7 +254,7 @@ end
 
 
 
-handles.listbox1.String = str2;
+handles.listbox1.String = new_str;
 end
 guidata(hObject, handles)
 

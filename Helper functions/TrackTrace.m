@@ -228,11 +228,58 @@ while ptflag
     if ptflag
         Trace(end+1,:) = newpt;
         
-        if noiseflag > 0
-            noiseflag =0;
-        end
+        %if noiseflag > 0
+        %    noiseflag =0;
+        %end
         
-    elseif Settings.stop.noise
+    elseif Settings.stop.noise & size(Trace,1) > 5
+         xdata = Trace(end-4:end,1);
+         ydata = Trace(end-4:end,2);
+         
+         px = polyfit(1:length(xdata), xdata',1);
+         py = polyfit(1:length(ydata), ydata',1);
+         fitax = 1:0.5:30;
+         trend = [];
+         trend(:,1) = round(polyval(px, fitax));
+         throwidx = find(trend(:,1) < 1);
+         throwidx = [throwidx; find(trend(:,1) > size(Shapes.normal,1))];
+         
+         
+         trend(:,2) = round(polyval(py, fitax));
+         throwidx = [throwidx; find(trend(:,2) < 1)];
+         throwidx = [throwidx; find(trend(:,2) > size(Shapes.normal, 1))];
+        
+         trend(throwidx, 1:2) = NaN;
+         keep_idx = find(~isnan(trend(:,1)));
+         trend = trend(keep_idx,:);
+         
+         trend_idx = sub2ind(size(Shapes.normal),trend(:,1), trend(:,2));
+         last_object_pixel = find( Shapes.Objects(trend_idx), 1, 'last');
+         
+         if last_object_pixel < length(trend_idx)-1
+             Theta = [-60:60] + Angle;
+
+             Cx = ceil(trend(last_object_pixel+1,1) + Settings.stepsize*sind(Theta));
+             Cy = ceil(trend(last_object_pixel+1,2) + Settings.stepsize*cosd(Theta));
+             Cidx = unique(sub2ind(size(frame),Cx,Cy));
+             Cidx = Cidx(~Shapes.Objects(Cidx));
+             Proi = frame(Cidx);
+             [~, idx] = min(Proi);
+             if ~isempty(idx)
+
+                 [newpt(2), newpt(1)] = ind2sub(size(Shapes.normal),Cidx(idx));
+                  [ptflag, Settings] = ValidatePoint( Settings, Shapes, newpt);
+                  if ptflag
+                      Trace(end+1,:) = newpt;
+                  end
+             end
+         end
+    end
+    
+    
+    %{
+    Old part of the 'if ptflag' statement...
+    elseif Settings.stop.noise & Settings.stop.object == 0
         if noiseflag < 0
             Trace(end+1,:) = newpt;
             noiseflag = noiseflag + 1;
@@ -270,13 +317,14 @@ while ptflag
             else
                 ptflag = 0;
                 
-            end
+            end            
+            
         else
             ptflag =0;
         end
         
     end
-    
+    %}
     
 end
 

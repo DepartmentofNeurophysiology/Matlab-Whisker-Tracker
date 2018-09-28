@@ -22,6 +22,17 @@ y2(1:10) = 1;
 y2(end-10:end) = 1;
 
 
-
 idx = find(y1 < 0.5 |  y2 < 0.5);
 Objects(idx,:) = 0;
+
+
+y1 = sum(Objects, 1)./max(sum(Objects,1));
+y1 = conv(y1, ones(1,10)./10,'same');
+Objects(:, y1 < 0.3) = 0;
+
+y1 = sum(Objects, 1)./max(sum(Objects,1));
+i1 = find(y1==0,1,'first');
+i2 = find(y1==0,1,'last');
+Objects(:,i1:i2) = 0;
+
+

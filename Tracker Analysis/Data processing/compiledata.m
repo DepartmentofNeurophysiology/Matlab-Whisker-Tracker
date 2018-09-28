@@ -85,7 +85,7 @@ if ~isempty(p.Results.File)
     
     
 else
-    Files = dir(fullfile(p.Results.Path,'*.dat'));
+    Files = dir(fullfile(p.Results.Path,'*.mat'));
     
     if isstr(p.Results.FileIndex)
         switch(p.Results.FileIndex)
@@ -125,10 +125,7 @@ for file_index = 1:length(FilesToAdd)
     
     % Manual data
     manual_file = fullfile( PathName, [BaseName '_Annotations.mat']);
-    
-    % Janelia data
-    janelia_file = fullfile( PathName, 'Janelia', [BaseName '.whiskers']);
-    
+       
     % Output file
     save_file = fullfile( PathName, [BaseName '_compiled.mat']);
     disp_name = [BaseName '_compiled.mat'];
@@ -140,12 +137,12 @@ for file_index = 1:length(FilesToAdd)
         continue
     end
     
-    if exist(meta_file, 'file')
+    if exist(meta_file, 'file') & 0
         MetaData = load(meta_file);
         MetaData.Data.TimeMS = (MetaData.Data.Time(:,1) - MetaData.Data.Time(1,1))*1000;        
     else
         fprintf(' - ERROR: metadata not found\n');
-        continue
+        %continue
     end
     
     fprintf('\n\t Structs added')    
@@ -157,7 +154,7 @@ for file_index = 1:length(FilesToAdd)
             Settings.Video(1) = PathName(1);
             
             % Copy tracker output to new Tracker struct
-            Tracker.MetaData = MetaData.Data;
+            %Tracker.MetaData = MetaData.Data;
             Tracker.Objects = Output.Objects;
             Tracker.Direction = Output.Direction;
             Tracker.Nose = Output.Nose;
@@ -178,7 +175,7 @@ for file_index = 1:length(FilesToAdd)
             Tracker.Parameters_clean = getParams(Tracker, 'clean');
             
             % Detect Touch
-            [Tracker.Touch, ~] = DetectTouch(Tracker, Settings);
+            %[Tracker.Touch, ~] = DetectTouch(Tracker, Settings);
             
             Annotations.Output = Output;
             Annotations.Settings = Settings;
@@ -192,35 +189,6 @@ for file_index = 1:length(FilesToAdd)
     elseif any(strcmp('Tracker', p.Results.Data))
         fprintf(' - Tracker not found');
     end
-    
-    
-    
-    
-    % check if Janelia data is there
-    if any(strcmp('Janelia', p.Results.Data)) && exist(janelia_file, 'file')
-        Janelia = ConvertJanelia( janelia_file );
-        
-        
-        Janelia.Objects = Tracker.Objects;
-        Janelia.Direction = Tracker.Direction;
-        Janelia.gapinfo = Tracker.gapinfo;
-        Janelia.Nose = Tracker.Nose;
-        Janelia.Headvec = Tracker.Headvec;
-        Janelia.gapinfo = Tracker.gapinfo;
-        Janelia.MetaData = MetaData.Data;
-        Janelia.Parameters = getParams(Janelia, 'raw');
-        Janelia.Traces_clean = CleanJanelia(Janelia);
-        [Janelia.Touch, ~] = DetectTouch(Janelia, Settings);  
-        Janelia.Parametesr_clean = getParams(Janelia,'clean');
-        
-         Annotations.Janelia = Janelia;
-        fprintf(' - Janelia');
-        
-    elseif any(strcmp('Janelia', p.Results.Data))
-            fprintf(' - Janelia not found');           
-        
-    end
-    
     
     
     

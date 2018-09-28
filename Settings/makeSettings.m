@@ -25,13 +25,14 @@ Settings.video_extension = '.dat';
 % regexp expression for name format (can be left empty)
 Settings.format = 'M(?<MOUSE>\d+)_R(?<SESSION>\d+)_(?<TRIAL>\d+).dat';
 
+
 % Set a path to which the GUI's will automatically direct:
 Settings.default_video_path = 'E:\Studie\Stage Neurobiologie\Videos\Mouse 47';
 
 % As explained in ParameterSetup, some dataformats (those not readable by
 % VideoReader) will need external metadata to load the video. Make sure the
 % LoadFrame function will handle any costum format properly
-Settings.use_external_specfile = 1; 
+Settings.use_external_specfile = 0; 
 
 % The background detection calls costumBackground.m, a plugin that adds
 % additional operations to extract a background. 
@@ -73,7 +74,7 @@ Settings.nose_interval = 5;
 % Frames to track can be filtered using nose tracking. If nose trackng is
 % requried, set to 'NOSE_REQUIRED', if the nose has to be within the gap
 % set to, 'NOSE_INGAP'. If all frames should be tracked, set to 'DEFAULT'
-Settings.frame_select = 'use_file';
+Settings.frame_select = 'DEFAULT';
 Settings.FrameFile = 'Frames_full_pad.mat';
 
 % Minimum number of consecutive frames with nose
@@ -125,5 +126,6 @@ if exist('costum','var')
     Settings.Dilationsize = costum.Settings.Dilationsize;
     Settings.Origin_threshold = costum.Settings.Origin_threshold;
     Settings.trace_threshold = costum.Settings.trace_threshold;
+    clear costum
 end
 

@@ -92,6 +92,11 @@ switch(handles.method)
             waitbar(i/size(SummedFrames,1),h,'Detecting Objects - Thresholding')    
         end
         
+        Kl = conv2(mean(SummedFrames,3), ones(10,10)./100, 'same');
+        Ks = conv2(mean(SummedFrames,3), ones(6,6)./36, 'same');
+        Edges = zeros(size(Objects));
+        Edges(Ks./Kl < 0.95) = 1;
+        
         close(h)
         
     case 'sequential'
@@ -118,7 +123,7 @@ imagesc(handles.axes1,Objects)
 colormap('gray')
 axis('off')
 
-
+handles.Edges  = Edges;
 handles.Objects = Objects;
 handles.SummedFrames = SummedFrames;
 
@@ -142,6 +147,7 @@ function varargout = ObjectDetection_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.Objects;
 varargout{2} = handles.mTrackSettings.object_threshold;
+varargout{3} = handles.Edges;
 close(handles.figure1);
 
 

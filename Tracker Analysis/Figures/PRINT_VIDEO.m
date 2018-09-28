@@ -1,4 +1,36 @@
 function PRINT_VIDEO(varargin)
+%% 
+% Name - Values
+% dPath - datapath with videos
+% FileIndex - file number as in directory
+% FileName  - file name
+%
+% dNose     - show nose
+% dDTT      - distance to target
+% 
+% dMraw     - show raw manual 
+% dMclean   - show clean manual
+% dMtouch   - show Manual touch
+%
+% dTraw     - show raw tracker
+% dTclean   - show clean tracker
+% dTtouch   - show Tracker touch
+% 
+% d2A       - use two axes for display
+% Max       - 'ax1' or 'ax2', axis for display
+% Tax       - 'ax1' or 'ax2', axis for display
+%
+% FrameSelect - 'full', show all frames,
+%               'cut', shw frames in 'FrameRange'
+%               'annotated', show frames with tracker annotations
+% FrameRange  - [a,b] , show frames in range a,b
+%
+% dExp      - Export video
+% dExpT     - 'avi' or 'gif', export video type
+%
+% Press 'q' during playback to quit
+
+%%
 p = inputParser;
 
 addParameter(p,'dPath', 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance');
@@ -16,14 +48,10 @@ addParameter(p,'dTraw',0);
 addParameter(p,'dTclean',0);
 addParameter(p,'dTtouch',0);
 
-addParameter(p,'dJraw',0);
-addParameter(p,'dJclean',0);
-addParameter(p,'dJtouch',0);
-
 addParameter(p,'d2A',0);
 addParameter(p,'Max','ax1');
 addParameter(p,'Tax','ax1');
-addParameter(p,'Jax','ax2');
+
 
 addParameter(p,'FrameSelect','full')
 addParameter(p,'FrameRange',[1,2])
@@ -76,9 +104,6 @@ if p.Results.dMtouch;  Manual_touch = Annotations.Manual.Touch; end
 if p.Results.dTraw;    Tracker_raw = Annotations.Tracker.Traces; end
 if p.Results.dTclean;  Tracker_clean = Annotations.Tracker.Traces_clean; end
 if p.Results.dTtouch;  Tracker_touch = Annotations.Tracker.Touch; end
-if p.Results.dJraw;    Janelia_raw = Annotations.Janelia.Traces; end
-if p.Results.dJclean;  Janelia_clean = Annotations.Janelia.Traces_clean; end
-if p.Results.dJtouch   Janelia_touch = Annotations.Janelia.Touch; end
 
 
 if isfield(Annotations,'Tracker')
@@ -96,8 +121,10 @@ display.fig = figure(1);
 
 if ~p.Results.d2A
     display.fig_width = round(1*Annotations.Settings.Video_heigth);
+    display.two_ax = 0;
 elseif p.Results.d2A
     display.fig_width = 2*round(1*Annotations.Settings.Video_heigth);
+    display.two_ax = 1;
 end
 display.fig_heigth = round(1*Annotations.Settings.Video_width);
 
@@ -314,29 +341,6 @@ for id = 1:length(display.show_frames)
         end
     end
     
-    
-    
-    if p.Results.dJraw
-        for j = 1:size(Janelia_raw{frame_index}, 2)
-            trace = Janelia_raw{frame_index}{j};
-            plot(display.(p.Results.Jax), trace(:,2), trace(:,1), 'color', Colors.janelia_light)
-        end
-    end
-    if p.Results.dJclean
-        for j = 1:size(Janelia_clean{frame_index}, 2)
-            trace = Janelia_clean{frame_index}{j};
-            plot(display.(p.Results.Jax), trace(:,2), trace(:,1), 'color', Colors.janelia_dark)
-        end
-    end
-    if p.Results.dJtouch
-        idx = find(Janelia_touch{frame_index});
-        for j = 1:length(idx)
-            pt = Janelia_clean{frame_index}{idx(j)}(end,:);
-            scatter(display.(p.Results.Jax), pt(2), pt(1), 'MarkerFaceColor', Colors.tracker_touch, ...
-                'MarkerEdgeColor', Colors.tracker_touch)
-        end
-    end
-    
     text(display.ax1,10,10,num2str(frame_index),'color','r','BackgroundColor','k')
     
     drawnow
@@ -368,6 +372,7 @@ for id = 1:length(display.show_frames)
     
     
     if strcmp(display.fig.CurrentCharacter,'q')
+        close(display.fig)
         break
     end
     
@@ -384,9 +389,9 @@ if p.Results.dExp
     end
 end
 
-
-
-
+if id == length(display.show_frames)
+    close(display.fig)
+end
 
 
 

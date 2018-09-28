@@ -71,7 +71,7 @@ Objects = gray2ind(Annotations.Output.Objects);
 
 %%
 
-%{
+
 % Frame 2 - Extracted objects
 cla
 imshow(Objects);
@@ -101,7 +101,7 @@ dispSil(dispSil == 1) = 0.1;
 
 
 %%
-%{
+
 % Frame 3 - Silhouette extraction
 cla
 imshow(frame);
@@ -1024,14 +1024,21 @@ while ptflag
     
 end
 
+
+%%
 Output = TrackFrame(Settings, Annotations.Output);
 TracesFrame = Output.Traces;
+
+figure(1)
+axes();
 cla
 imshow(frame)
 hold on
 for i = 1:size(TracesFrame,2)
     t=  TracesFrame{i};
     plot(t(:,2), t(:,1), 'b')
+    text(t(end,2), t(end,1), num2str(i))
+    
 end
 
 xlim([0 f_width])
@@ -1041,7 +1048,7 @@ x = 1;
 
 
 
-
+%%
 
 
 

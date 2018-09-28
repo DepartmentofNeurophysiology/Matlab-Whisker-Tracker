@@ -58,6 +58,13 @@ switch(extension)
         frame = im2double(frame);
         
         
+    case '.mat'
+        m = matfile(Video);
+        fr = m.movf(1, framenr);
+        frame = rgb2gray(fr.cdata);
+        frame = im2double(frame);
+        
+        
     otherwise
         
         if isfield(Settings,'Video_object') % Specified in 1st section in ParameterSetup

@@ -96,6 +96,7 @@ if flag == 1
     mGridY = mGridY(:);
     
     GridIDX = sub2ind(size(Objects),mGridX,mGridY);
+    object_val = numel(find(Objects(GridIDX)))/ numel(find(GridIDX));
     GridIDX = GridIDX(Objects(GridIDX) == 0);
     GridIDX = GridIDX(SilhouetteSmall(GridIDX) == 0);
     
@@ -117,7 +118,7 @@ if flag == 1
             DiaID = [D1(:),D2(:)];
             dind = sub2ind(size(Frame),DiaID(:,1),DiaID(:,2));
             dind = dind(Objects(dind) == 0);
-            
+             
             
         case 2
             % alternate diamond
@@ -147,9 +148,12 @@ if flag == 1
     
     if IntensityRatio > Settings.trace_threshold
         flag = 0;
-        Error.noise = 1;
+        Error.noise = 1;        
+        if object_val > 0.1
+            Error.object = 1;
+        end
     end
-  
+     
 end
 
 
