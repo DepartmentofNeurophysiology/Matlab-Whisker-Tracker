@@ -87,7 +87,7 @@ switch( Settings.frame_select)
             disp('manual file does not exist')
             keyboard
         end
-        
+        keyboard
         
     case 'use_file'
         load(fullfile(Settings.PathName, Settings.FrameFile));
@@ -99,9 +99,17 @@ switch( Settings.frame_select)
         Pairs = Output(i).Pairs;
         frame_idx = zeros(1, Settings.Nframes);
         for i = 1:size(Pairs, 2)
+            if any(Pairs{i} > Settings.Nframes)
+                disp('wrong pairs for video:')
+                disp(Settings.FileName)
+                frame_idx(:) = 0;
+                return
+            end
             frame_idx(Pairs{i}(1):Pairs{i}(2)) = 1;
         end
         
+        
 end
+
 
 

@@ -55,7 +55,7 @@ end
 
 
 %% Data Tracking and display
-
+Settings.batch_mode = 0;
 % Track Objects and Nose
 [Output.Objects,Settings.object_threshold] = ObjectDetection(Settings);
 Output = TrackNose(Settings, Output);

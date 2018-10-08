@@ -18,6 +18,7 @@ Settings.PathName = Video(1:slash_idx-1);
 Settings.FileName = Video(slash_idx+1:end);
 Settings.batch_mode = 1;
 Settings.outpath = Settings.PathName;
+Settings.ExportName = fullfile(Settings.PathName, [Settings.FileName(1:end-4) '_Annotations_Tracker.mat']);
 
 pidx = find(Video == '.');
 extension = Video(pidx+1:end);

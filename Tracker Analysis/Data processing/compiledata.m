@@ -40,8 +40,8 @@ function compiledata(varargin)
 %   single-file, tracker only compilation with overwrite:
 %       compiledata('file','C:\Videos\example.dat','data',{'Tracker'}, 'overwrite', 1)
 %
-%   multi-file, tracker/janelia L
-%       compiledata('path','C:\Videos\','data',{'Tracker',Janelia'})
+%   multi-file, tracker
+%       compiledata('path','C:\Videos\','data',{'Tracker'})
 %
 %
 %
@@ -85,7 +85,7 @@ if ~isempty(p.Results.File)
     
     
 else
-    Files = dir(fullfile(p.Results.Path,'*.mat'));
+    Files = dir(fullfile(p.Results.Path,'*_Annotations_Tracker.mat'));
     
     if isstr(p.Results.FileIndex)
         switch(p.Results.FileIndex)
@@ -111,7 +111,7 @@ end
 
 for file_index = 1:length(FilesToAdd)
     PathName = Files( FilesToAdd( file_index )).folder;
-    BaseName = Files( FilesToAdd( file_index )).name(1:end-4);
+    BaseName = Files( FilesToAdd( file_index )).name(1:end-24);
     
     
     fprintf('(%2d/%2d) Saving tracking data ',file_index,length(FilesToAdd))
@@ -137,7 +137,7 @@ for file_index = 1:length(FilesToAdd)
         continue
     end
     
-    if exist(meta_file, 'file') & 0
+    if exist(meta_file, 'file')
         MetaData = load(meta_file);
         MetaData.Data.TimeMS = (MetaData.Data.Time(:,1) - MetaData.Data.Time(1,1))*1000;        
     else
@@ -154,12 +154,12 @@ for file_index = 1:length(FilesToAdd)
             Settings.Video(1) = PathName(1);
             
             % Copy tracker output to new Tracker struct
-            %Tracker.MetaData = MetaData.Data;
+            Tracker.MetaData = MetaData.Data;
             Tracker.Objects = Output.Objects;
+            Tracker.Edges = Output.Edges;
             Tracker.Direction = Output.Direction;
             Tracker.Nose = Output.Nose;
             Tracker.Headvec = Output.AngleVector; % Angle of head w.r.t. frame
-            Tracker.Origins = Output.Origins; % Tracking seeds
             Tracker.Traces = Output.Traces;
             Tracker.Parameters = getParams(Tracker, 'raw');
             
@@ -171,11 +171,18 @@ for file_index = 1:length(FilesToAdd)
             % Tracker.Parameters = getParams(Tracker,'raw');
             
             % Clean Traces
-            Tracker.Traces_clean = CleanTraces(Tracker, 1);
+            Tracker.Traces_clean = fitTraces(Tracker.Traces);
             Tracker.Parameters_clean = getParams(Tracker, 'clean');
             
             % Detect Touch
-            %[Tracker.Touch, ~] = DetectTouch(Tracker, Settings);
+            switch(Tracker.Direction)
+                case 'Up'
+                    edgeIDX = Tracker.gapinfo.edge_1;
+                case 'Down'
+                    edgeIDX = Tracker.gapinfo.edge_2;
+            end
+            Tracker.Touch = detectTouch(Tracker.Traces_clean, Tracker.Edges, edgeIDX);
+            
             
             Annotations.Output = Output;
             Annotations.Settings = Settings;
@@ -204,6 +211,7 @@ for file_index = 1:length(FilesToAdd)
             % Convert manual notations format to tracker format
             converted_data = ConvertAnnotations(Manual.RawNotations);
             Manual.Objects = Output.Objects; % Manual tracking data does not contain object detection
+            Manual.Edges = Output.Objects;
             Manual.Nose = Output.Nose; % Manual tracking data does not contain nose
             Manual.Headvec = Output.AngleVector; % Manual tracking data does not contain headangle
             Manual.Traces = converted_data.Traces;
@@ -211,6 +219,8 @@ for file_index = 1:length(FilesToAdd)
             Manual.Labels = converted_data.Labels.Full;
             Manual.Label_names = converted_data.Labels.Names;
             Manual.Touch = converted_data.Touch;
+            
+            Manual.Touch_auto = detectTouch(Manual.Traces, Manual.Edges, edgeIDX);
             
             Annotations.Manual = Manual;
             fprintf(' - Manual');

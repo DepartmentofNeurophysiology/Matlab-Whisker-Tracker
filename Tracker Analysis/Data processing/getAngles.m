@@ -15,7 +15,7 @@ if isfield(Annotations,'Tracker')
     H = Annotations.Tracker.Headvec;
     T = Annotations.Tracker.Traces_clean;
     
-    nframes = size(T,1);
+    nframes = max(size(T));
     
     Angles.Tracker.r_min(1:nframes) = NaN;
     Angles.Tracker.r_max(1:nframes) = NaN;
@@ -80,15 +80,28 @@ if isfield(Annotations,'Tracker')
     Angles.Tracker.l_max = fillGaps(Angles.Tracker.l_max);
     
     
+    switch(Annotations.Output.Direction)
+        case 'Down'
+            Angles.Tracker.r_min_filtered = conv(Angles.Tracker.r_min, filter, 'same');
+            [Angles.Tracker.r_min_peaks, Angles.Tracker.r_min_troghs] = addPeaks(-Angles.Tracker.r_min_filtered);
+            Angles.Tracker.r_max_filtered = conv(Angles.Tracker.r_max, filter, 'same');
+            [Angles.Tracker.r_max_peaks, Angles.Tracker.r_max_troghs] = addPeaks(-Angles.Tracker.r_max_filtered);
+            Angles.Tracker.l_min_filtered = conv(Angles.Tracker.l_min, filter, 'same');
+            [Angles.Tracker.l_min_peaks, Angles.Tracker.l_min_troghs] = addPeaks(Angles.Tracker.l_min_filtered);
+            Angles.Tracker.l_max_filtered = conv(Angles.Tracker.l_max, filter, 'same');
+            [Angles.Tracker.l_max_peaks, Angles.Tracker.l_max_troghs] = addPeaks(Angles.Tracker.l_max_filtered);
+        case 'Up'
+            Angles.Tracker.r_min_filtered = conv(Angles.Tracker.r_min, filter, 'same');
+            [Angles.Tracker.r_min_peaks, Angles.Tracker.r_min_troghs] = addPeaks(Angles.Tracker.r_min_filtered);
+            Angles.Tracker.r_max_filtered = conv(Angles.Tracker.r_max, filter, 'same');
+            [Angles.Tracker.r_max_peaks, Angles.Tracker.r_max_troghs] = addPeaks(Angles.Tracker.r_max_filtered);
+            Angles.Tracker.l_min_filtered = conv(Angles.Tracker.l_min, filter, 'same');
+            [Angles.Tracker.l_min_peaks, Angles.Tracker.l_min_troghs] = addPeaks(-Angles.Tracker.l_min_filtered);
+            Angles.Tracker.l_max_filtered = conv(Angles.Tracker.l_max, filter, 'same');
+            [Angles.Tracker.l_max_peaks, Angles.Tracker.l_max_troghs] = addPeaks(-Angles.Tracker.l_max_filtered);
+    end
     
-    Angles.Tracker.r_min_filtered = conv(Angles.Tracker.r_min, filter, 'same');    
-    [Angles.Tracker.r_min_peaks, Angles.Tracker.r_min_troghs] = addPeaks(Angles.Tracker.r_min_filtered);  
-    Angles.Tracker.r_max_filtered = conv(Angles.Tracker.r_max, filter, 'same');
-    [Angles.Tracker.r_max_peaks, Angles.Tracker.r_max_troghs] = addPeaks(Angles.Tracker.r_max_filtered);
-    Angles.Tracker.l_min_filtered = conv(Angles.Tracker.l_min, filter, 'same');
-    [Angles.Tracker.l_min_peaks, Angles.Tracker.l_min_troghs] = addPeaks(Angles.Tracker.l_min_filtered);
-    Angles.Tracker.l_max_filtered = conv(Angles.Tracker.l_max, filter, 'same');
-    [Angles.Tracker.l_max_peaks, Angles.Tracker.l_max_troghs] = addPeaks(Angles.Tracker.l_max_filtered);
+    
     
 end
 
@@ -104,10 +117,10 @@ if isfield(Annotations, 'Manual')
     
     nframes = size(L,2);
     
-    Angles.Manual.r_min(1:nframes) = NaN;
-    Angles.Manual.r_max(1:nframes) = NaN;
-    Angles.Manual.l_min(1:nframes) = NaN;
-    Angles.Manual.l_max(1:nframes) = NaN;
+    Manual.r_min(1:nframes) = NaN;
+    Manual.r_max(1:nframes) = NaN;
+    Manual.l_min(1:nframes) = NaN;
+    Manual.l_max(1:nframes) = NaN;
     
     for i = 1:nframes
         if isempty(L{i})
@@ -124,8 +137,8 @@ if isfield(Annotations, 'Manual')
         
         if ~isempty(lidx)
             l_angles = P{i}(lidx, 6);
-            Angles.Manual.l_min(i) = max(l_angles);
-            Angles.Manual.l_max(i) = min(l_angles);
+            Manual.l_min(i) = max(l_angles);
+            Manual.l_max(i) = min(l_angles);
         end
         
         
@@ -138,8 +151,8 @@ if isfield(Annotations, 'Manual')
         
         if ~isempty(ridx)
             r_angles = P{i}(ridx,  6);
-            Angles.Manual.r_min(i) = min(r_angles);
-            Angles.Manual.r_max(i) = max(r_angles);
+            Manual.r_min(i) = min(r_angles);
+            Manual.r_max(i) = max(r_angles);
         end
         
     end
@@ -147,17 +160,56 @@ if isfield(Annotations, 'Manual')
     %Angles.Manual.r_max = fillGaps(Angles.Manual.r_max);
     %Angles.Manual.l_min = fillGaps(Angles.Manual.l_min);
     %Angles.Manual.l_max = fillGaps(Angles.Manual.l_max);
-    
-    Angles.Manual.r_min_filtered = conv(Angles.Manual.r_min, filter, 'same');
-    [Angles.Manual.r_min_peaks, Angles.Manual.r_min_troghs] = addPeaks(Angles.Manual.r_min_filtered);  
-    Angles.Manual.r_max_filtered = conv(Angles.Manual.r_max, filter, 'same');
-    [Angles.Manual.r_max_peaks, Angles.Manual.r_max_troghs] = addPeaks(Angles.Manual.r_max_filtered);
-    Angles.Manual.l_min_filtered = conv(Angles.Manual.l_min, filter, 'same');
-    [Angles.Manual.l_min_peaks, Angles.Manual.l_min_troghs] = addPeaks(Angles.Manual.l_min_filtered);
-    Angles.Manual.l_max_filtered = conv(Angles.Manual.l_max, filter, 'same');
-    [Angles.Manual.l_max_peaks, Angles.Manual.l_max_troghs] = addPeaks(Angles.Manual.l_max_filtered);
+     switch(Annotations.Output.Direction)
+        case 'Up'
+        Manual.r_min_filtered = conv(Manual.r_min, filter, 'same');
+        [Manual.r_min_peaks, Manual.r_min_troghs] = addPeaks(-Manual.r_min_filtered);  
+        Manual.r_max_filtered = conv(Manual.r_max, filter, 'same');
+        [Manual.r_max_peaks, Manual.r_max_troghs] = addPeaks(-Manual.r_max_filtered);
+        Manual.l_min_filtered = conv(Manual.l_min, filter, 'same');
+        [Manual.l_min_peaks, Manual.l_min_troghs] = addPeaks(Manual.l_min_filtered);
+        Manual.l_max_filtered = conv(Manual.l_max, filter, 'same');
+        [Manual.l_max_peaks, Manual.l_max_troghs] = addPeaks(Manual.l_max_filtered);
+         case 'Down'
+               Manual.r_min_filtered = conv(Manual.r_min, filter, 'same');
+        [Manual.r_min_peaks, Manual.r_min_troghs] = addPeaks(Manual.r_min_filtered);  
+        Manual.r_max_filtered = conv(Manual.r_max, filter, 'same');
+        [Manual.r_max_peaks, Manual.r_max_troghs] = addPeaks(Manual.r_max_filtered);
+        Manual.l_min_filtered = conv(Manual.l_min, filter, 'same');
+        [Manual.l_min_peaks, Manual.l_min_troghs] = addPeaks(-Manual.l_min_filtered);
+        Manual.l_max_filtered = conv(Manual.l_max, filter, 'same');
+        [Manual.l_max_peaks, Manual.l_max_troghs] = addPeaks(-Manual.l_max_filtered);
+     end
     
 end
+
+
+
+%%
+
+names = {'r_min','l_min','r_max','l_max'};
+
+for j = 1:4
+
+eval(sprintf('data = Angles.Tracker.%s_filtered;', names{j}))
+
+for i = 1:4
+    eval(sprintf('idx = find(~isnan(data) & ~isnan(Manual.%s_filtered));', names{i}))
+    eval(sprintf('d(i) = sum(abs(data(idx) - Manual.%s_filtered(idx)));', names{i}))
+end
+
+[~, id] = min(d);
+
+eval(sprintf('Angles.Manual.%s = Manual.%s;',names{j}, names{id}))
+eval(sprintf('Angles.Manual.%s_filtered = Manual.%s_filtered;',names{j}, names{id}))
+eval(sprintf('Angles.Manual.%s_peaks = Manual.%s_peaks;',names{j}, names{id}))
+eval(sprintf('Angles.Manual.%s_troghs = Manual.%s_troghs;',names{j}, names{id}))
+
+
+end
+
+
+
 
 end
 

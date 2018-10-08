@@ -3,19 +3,29 @@
 Tracker_speed = 1;
 Tracker_evaluation = 1;
 Parameter_evaluation = 1;
-
+Datapath = 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance';
 %% Tracker speed
 % To evaluate tracker processing speed, MWT was run on 10 videos
 
-if Tracker_speed
-    Datapath = 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance';
-    Videos = dir(fullfile(Datapath, '*.dat'));
-    n_to_test = 10;
-    idx = randperm(size(Videos,1), n_to_test);
-    for i = 1:length(idx)
-        Test_Videos{1,i} = fullfile(Videos(idx(i)).folder, Videos(idx(i)).name);
-    end
-    Timing = timeMWT('files', Test_Videos);
+if Tracker_speed 
+    Files = dir(fullfile(Datapath,'*Annotations_Tracker.mat'));
+    for i = 1:size(Files, 1)
+        load(fullfile(Files(i).folder, Files(i).name))
+        nframes = 0;
+        for j = 1:size(Output.Traces,1)
+            if ~isempty(Output.Traces{j})
+                nframes = nframes+1;
+            end
+        end
+        
+        res(i,1) = nframes;
+        res(i,2) = Output.ProcessingTime;
+        res(i,3) = nframes/Output.ProcessingTime;
+    end    
+    
+    fprintf('Tracker Speed:\n')
+    fprintf('Frame count: %.0f - Processing time: %5.0f - FPS: %2.3f\n',...
+        sum(res(:,1)), sum(res(:,2)), mean(res(:,3)))    
 end
 
 %% Trace Evaluation
@@ -31,7 +41,7 @@ end
 
 %% Parameter estimation
 
-
+clc
 
 if Parameter_evaluation
     overwrite = 0;
@@ -184,8 +194,20 @@ if Parameter_evaluation
     %}
     
     h = waitbar(0, 'angles');
+    %%
     for i = 1:size(comp_files, 1)
         load(fullfile(comp_files(i).folder, comp_files(i).name))
+        
+        if ~isfield(Annotations.Tracker,'MetaData')
+            mfile = Annotations.Settings.Video;
+            mfile(end-2) = 'm';
+            load(mfile)
+            Annotations.Tracker.MetaData = Data;
+            Annotations.Tracker.MetaData.TimeMS = ...
+                (Annotations.Tracker.MetaData.Time(:,1) - Annotations.Tracker.MetaData.Time(1,1))*1000;   
+        end
+        
+        
         Angles = getAngles(Annotations);
         
         % Tracker
@@ -362,6 +384,6 @@ end
 
 
 
-
+%%
 
 

@@ -160,13 +160,17 @@ switch(p.Results.FrameSelect)
         end
         
     case 'annotated'
-        idx = zeros(1, size(Annotations.Tracker.Traces_clean, 1));
+        idx = zeros(1, size(Annotations.Tracker.Traces_clean, 2));
         for ii = 1:length(idx)
             if ~isempty(Annotations.Tracker.Traces_clean{ii})
                 idx(ii) = 1;
             end
         end
         id = [find(idx == 1, 1, 'first') find(idx==1, 1, 'last')];  
+        if isempty(id)
+            display('no annotated frames')
+            return
+        end
         display.show_frames = id(1):id(2);
 end
 
@@ -175,7 +179,7 @@ end
 if p.Results.dExp
     switch(p.Results.dExpT)
         case 'avi'
-            vidname = [Files(p.Results.FileIndex).name(1:end-13) '_Annotated'];
+            vidname = [video_file(1:end-4) '_Annotated'];
             vidout = VideoWriter(fullfile(Files(p.Results.FileIndex).folder, vidname), 'Motion JPEG AVI');
             open(vidout)
             

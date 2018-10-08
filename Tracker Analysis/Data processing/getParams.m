@@ -41,7 +41,7 @@ for i = 1:size(Traces,1)
     nose = Tracker.Nose(i,:);
     
     m = [];
-    
+   
     if ntraces > 0
         m(1:ntraces,1:nparams) = NaN;
         for j = 1:ntraces
