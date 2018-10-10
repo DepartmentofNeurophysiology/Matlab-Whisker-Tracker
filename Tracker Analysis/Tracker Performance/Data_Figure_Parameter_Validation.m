@@ -144,7 +144,7 @@ Data.corr.r_max = compareThetas(Data.Angles.Tracker.r_max_filtered, Data.Angles.
 
 %% AX3 - Correlation
 h = waitbar(0, 'doing things');
-for i = 1:35%size(comp_files,1)
+for i = 1:size(comp_files,1)
     load(fullfile(comp_files(i).folder, comp_files(i).name))
     nframes = size(Annotations.Output.Traces,1);
     frange = zeros(1, nframes);
@@ -230,7 +230,7 @@ Data.Mtrogh2 = Data.Angles.Manual.r_max_troghs(id+1);
 
 h = waitbar(0,'gathering data');
 
-for i = 1:35%size(comp_files,1)
+for i =   1:size(comp_files,1)
     %%
     % Load file
     load(fullfile(comp_files(i).folder, comp_files(i).name))
@@ -569,7 +569,7 @@ Data.BIN_SPEEDxticklabels = 0:stepsize:maxval;
 
 h = waitbar(0, 'doing touch');
 
-for i = 1:35 % size(comp_files,1)
+for i =  1:size(comp_files,1)
      load(fullfile(comp_files(i).folder, comp_files(i).name))
      
      
@@ -624,7 +624,7 @@ Data.TOUCHticklabel = 0:2:maxval;
 
 
 
-
+save(fullfile(Datapath,'Data_Figure_Par_Eval'),'Data')
 
 
 

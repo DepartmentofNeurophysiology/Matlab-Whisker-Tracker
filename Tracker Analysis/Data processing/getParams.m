@@ -25,16 +25,19 @@ function Parameters = getParams(Tracker,type)
 switch(type)
     case 'raw'
         Traces = Tracker.Traces;
+        nframes = size(Traces, 1);
     case 'clean'
         Traces = Tracker.Traces_clean;
+        nframes = size(Traces, 2);
 end
 
 nparams = 8;
-Parameters = cell(1,size(Traces,1));
+Parameters = cell(1,nframes);
 
 dist_px = 20;
 
-for i = 1:size(Traces,1)
+for i = 1:nframes
+    
     ntraces = size(Traces{i},2);
     headangle  = atan2d(Tracker.Headvec(i,2), Tracker.Headvec(i,1));
     R = [cosd(headangle), -sind(headangle); sind(headangle), cosd(headangle)];

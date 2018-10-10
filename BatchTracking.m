@@ -25,14 +25,12 @@ makeSettings;
 
 %% Track videos
 
-if Settings.use_parfor
-poolobj = gcp;
-end
 
+False_videos = {};
 
 for i = 1:size(Files,1)
    
-   
+    try
     time_start = clock;
          
     % Generate settings for file tracking  
@@ -55,10 +53,14 @@ for i = 1:size(Files,1)
     frame_idx = CostumFrameSelection(Settings, Output);
     frame_idx = find(frame_idx);
     Traces = cell(Settings.Nframes,1);
-
-   
-   %% 
-    if ~Settings.use_parfor    
+    
+    if Settings.use_parfor
+        poolobj = gcp;
+    end
+    
+    
+    %%
+    if ~Settings.use_parfor
         tic
         h = waitbar(0,'Tracking Video -');
         count = 0;
@@ -123,7 +125,9 @@ for i = 1:size(Files,1)
     save( Settings.ExportName,'Output','Settings')   
  
    
-   
+    catch
+        False_videos{end+1} = Settings.Video;
+    end
 end
 
 

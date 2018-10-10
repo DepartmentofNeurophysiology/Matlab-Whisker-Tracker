@@ -80,7 +80,7 @@ if ~isempty(p.Results.File)
         fprintf('File ''%s'' does not exis\nt', fullfile( Files(1).folder, Files(1).name))
         return
     end
-    
+    keyboard
     FilesToAdd = 1;
     
     

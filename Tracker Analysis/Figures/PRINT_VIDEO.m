@@ -97,7 +97,7 @@ if p.Results.dDTT
     end
 end
 
-if p.Results.dNose;    Nose = Annotations.Tracker.Nose; end
+if p.Results.dNose;    Nose = Annotations.Tracker.Nose; Angle = Annotations.Tracker.Headvec; end
 if p.Results.dMraw;    Manual_raw = Annotations.Manual.RawNotations; end
 if p.Results.dMclean;  Manual_clean = Annotations.Manual.Traces; end
 if p.Results.dMtouch;  Manual_touch = Annotations.Manual.Touch; end
@@ -180,7 +180,7 @@ if p.Results.dExp
     switch(p.Results.dExpT)
         case 'avi'
             vidname = [video_file(1:end-4) '_Annotated'];
-            vidout = VideoWriter(fullfile(Files(p.Results.FileIndex).folder, vidname), 'Motion JPEG AVI');
+            vidout = VideoWriter(vidname, 'Motion JPEG AVI');
             open(vidout)
             
         case 'gif'
@@ -296,7 +296,7 @@ for id = 1:length(display.show_frames)
     
     
     
-    if p.Results.dMraw
+    if p.Results.dMraw & frame_index <= size(Manual_raw,1)
         for j = 1:size(Manual_raw{frame_index},2)
             if strcmp(Manual_raw{frame_index}{j}{4},'track')
                 scatter(display.(p.Results.Max),Manual_raw{frame_index}{j}{1},Manual_raw{frame_index}{j}{2},...
@@ -304,7 +304,7 @@ for id = 1:length(display.show_frames)
             end
         end
     end
-    if p.Results.dMclean
+    if p.Results.dMclean & frame_index <= size(Manual_clean,1)
         for j = 1:size(Manual_clean{frame_index}, 2)
             trace = Manual_clean{frame_index}{j};
             if ~isempty(trace)

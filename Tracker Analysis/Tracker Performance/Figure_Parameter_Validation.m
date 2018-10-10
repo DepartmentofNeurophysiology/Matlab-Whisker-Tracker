@@ -13,10 +13,13 @@ c.BlueMap = cmap;
 cmap = cbrewer('seq','YlOrBr',200);
 c.OrangeMap = flip(cmap,1);
 
-%data_fig
-%% Make figure
+if exist('E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance\Data_Figure_Par_Eval.mat','file')
+    load('E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance\Data_Figure_Par_Eval.mat')
+else    
+    Data_Figure_Parameter_Validation;
+end
 
-close all
+%% Make figure
 
 figure_width = 750;
 figure_heigth = 500;

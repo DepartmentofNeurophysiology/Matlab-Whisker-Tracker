@@ -25,6 +25,7 @@ Settings.video_extension = '.dat';
 % regexp expression for name format (can be left empty)
 Settings.format = 'M(?<MOUSE>\d+)_R(?<SESSION>\d+)_(?<TRIAL>\d+).dat';
 
+% Optionally, the parallel processing can be used to speed up tracking
 Settings.use_parfor = 1;
 
 % Set a path to which the GUI's will automatically direct:

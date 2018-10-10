@@ -4,7 +4,7 @@ function Touch = detectTouch(Traces, Edges, edgeIDX)
 
 %%
 edge_width = 5; % Roi width of detection
-max_dist = 2; % distance tip-edge (max) to detect touch 
+max_dist = 10; % distance tip-edge (max) to detect touch 
 
 
 % Detect touch only around target platform
