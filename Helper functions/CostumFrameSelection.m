@@ -90,7 +90,7 @@ switch( Settings.frame_select)
         keyboard
         
     case 'use_file'
-        load(fullfile(Settings.PathName, Settings.FrameFile));
+        load(fullfile(Settings.PathName, 'Selected_frames.mat'));
         for i = 1:size(Output, 2)
             if strcmp(Output(i).Video, Settings.FileName)
                 break

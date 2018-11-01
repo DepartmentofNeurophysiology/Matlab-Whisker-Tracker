@@ -1,17 +1,5 @@
 warning('off')
-cmap = cbrewer('div','BrBG',30);
-c.Manual = cmap(5,:);
-c.Tracker = cmap(25,:);
-
-cmap = cbrewer('seq','Blues',20);
-c.Blue = cmap(19,:);
-
-cmap = cbrewer('div','RdBu',200);
-cmap = flip( cmap(floor(size(cmap,1)/2):end,:), 1);
-c.BlueMap = cmap;
-
-cmap = cbrewer('seq','YlOrBr',200);
-c.OrangeMap = flip(cmap,1);
+c = makeColor();
 
 if exist('E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance\Data_Figure_Par_Eval.mat','file')
     load('E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance\Data_Figure_Par_Eval.mat')
@@ -19,40 +7,48 @@ else
     Data_Figure_Parameter_Validation;
 end
 
-%% Make figure
 
-figure_width = 750;
+Rs.FontWeight = 'bold';
+Rs.Units =  'normalized';
+Rs.FontSize  = 9;
+Rs.color = 'r';
+Fonts.Rs = Rs;
+
+%% Make figure
+close all
+
+figure_width = 780;
 figure_heigth = 500;
 
 marg_x = 50;
-marg_y = 40;
+marg_y = 10;
 
 
 im_x_range = [120 620];
 im_y_range = [220 480];
 xwidth = abs(diff(im_x_range));
 ywidth = abs(diff(im_y_range));
-im_ax_heigth = 110;
+im_ax_heigth = 130;
 im_ax_width = im_ax_heigth*(xwidth/ywidth);
 
 theta_ax_heigth = 130;
 theta_ax_width = 300;
 
-corr_ax_heigth = 80;
-corr_ax_width = 80;
+corr_ax_heigth = 95;
+corr_ax_width = 95;
 
-inset_width = 180;
+inset_width = 200;
 inset_heigth = 90;
 
-par_heigth = 80;
-par_width = 80;
+par_heigth =100;
+par_width = 100;
 
-touch_width = 100;
-touch_heigth =100;
+touch_width = 95;
+touch_heigth =95;
 
-f = figure('Units','points','Position',[500 50 figure_width figure_heigth]);
+f = figure('Units','points','Position',[10 50 figure_width figure_heigth]);
 
-x = marg_x;
+x = marg_x+10;
 y = figure_heigth-marg_y-im_ax_heigth;
 
 % Axis for frame
@@ -61,11 +57,11 @@ im_y_range = [220 480];
 xwidth = abs(diff(im_x_range));
 ywidth = abs(diff(im_y_range));
 ax1 = axes(f,'Units','points',...
-    'Position',[x y+10 im_ax_width im_ax_heigth],...
-    'Visible','off');
+    'Position',[x y im_ax_width im_ax_heigth],...
+    'Visible','on');
 
 % Axis for thetas
-nleft = 70;
+nleft = 100;
 x = marg_x+im_ax_width+nleft;
 ax2 = axes(f,'Units','points',...
     'Position',[x y theta_ax_width theta_ax_heigth],...
@@ -74,19 +70,19 @@ ax2 = axes(f,'Units','points',...
 
 
 % Axis for paramter set-in
-ntop = 0;
+ntop = 10;
 y = figure_heigth-marg_y-im_ax_heigth-ntop-theta_ax_heigth;
 nleft = 30;
-x = marg_x;
+x = marg_x+40;
 ax4 = axes(f,'Units','points',...
-    'Position',[x y inset_width inset_heigth],...
+    'Position',[x-5 y inset_width inset_heigth],...
     'Visible','on');
 
 
 % Axis for amplitude measure
-ntop = 0;
-y = figure_heigth-marg_y-im_ax_heigth-ntop-theta_ax_heigth-10;
-x = marg_x + im_ax_width+80;
+ntop = 30;
+y = figure_heigth-marg_y-im_ax_heigth-ntop-theta_ax_heigth-20;
+x = marg_x + inset_width +120;
 
 ax5 = axes(f,'Units','points',...
     'Position',[x y par_width par_heigth],...
@@ -105,13 +101,13 @@ x = x+nleft+par_width;
 ax7 = axes(f,'Units','points',...
     'Position',[x y par_width par_heigth],...
     'Visible','on');
-cbar7 = colorbar(ax7, 'Location','Manual','Units','points','Position',[0 0 5 10]);
+%cbar7 = colorbar(ax7, 'Location','Manual','Units','points','Position',[0 0 0 10]);
 
 
 % Axis for amplitude
-ntop = 30;
+ntop = 20;
 y = y-ntop-par_heigth;
-x = marg_x + im_ax_width + 80;
+x = marg_x + inset_width +120;
 ax8 = axes(f,'Units','points',...
     'Position',[x y par_width par_heigth],...
     'Visible','on');
@@ -129,31 +125,34 @@ ax10 = axes(f,'Units','points',...
     'Position',[x y par_width par_heigth],...
     'Visible','on');
 
+ntop = 25;
+y = figure_heigth-marg_y-im_ax_heigth-ntop-theta_ax_heigth-10;
+y = y-ntop-par_heigth;
+
 % Axis for touch
-x = marg_x;
+x = marg_x+150;
 ax11 = axes(f,'Units','points',...
-    'Position',[x,y-20, touch_width, touch_heigth],...
+    'Position',[x,y, touch_width, touch_heigth],...
     'Visible','on');
 
 % Axis for correlation
-
-x = marg_x+ 130;
+x = marg_x;
 ax3 = axes(f,'Units','points',...
-    'Position',[x y corr_ax_width corr_ax_heigth],...
+    'Position',[x+10 y corr_ax_width corr_ax_heigth],...
     'Visible','on');
 
 %% AX1 - EXAMPLE FRAME
 
 imagesc(ax1, Data.Frame)
 colormap gray
-caxis(ax1, [0 0.6])
+caxis(ax1, [0 1])
 xlim(ax1,im_x_range)
 ylim(ax1,im_y_range)
 set(ax1,'Visible','off')
 
 hold(ax1, 'on')
 for i = 1:size(Data.TTraces,2)
-    if Data.TCRflag(i)
+    if Data.TCRflag(i) == 0
         plot(ax1, Data.TTraces{i}(:,2), Data.TTraces{i}(:,1), 'color',c.Tracker,...
             'LineStyle','--','LineWidth',1)
     else
@@ -163,19 +162,20 @@ for i = 1:size(Data.TTraces,2)
 end
 
 for i = 1:length(Data.MCRflag)
-    if Data.MCRflag(i) == 1 || Data.MCRflag(i) == 0
+    if Data.MCRflag(i) == 2
         plot(ax1,Data.MTraces{i}(:,2), Data.MTraces{i}(:,1), 'color',c.Manual,...
             'LineStyle','-','LineWidth',1)
-    elseif Data.MCRflag(i) == 2
+    elseif Data.MCRflag(i) == 1 || Data.MCRflag(i) == 0
         plot(ax1,Data.MTraces{i}(:,2), Data.MTraces{i}(:,1), 'color',c.Manual,...
             'LineStyle','--','LineWidth',1)
     end
 end
 
-
+%rectangle(ax1, 'Position',[im_x_range(1) im_y_range(1) 40 40], 'FaceColor',c.Gray,'EdgeColor','none')
+text(ax1, im_x_range(1) - 30, im_y_range(1)+20, 'A','FontSize',16)
 
 %% AX2 - EXAMPLE THETAS
-
+cla(ax2)
 hold(ax2,'on')
 plot(ax2, Data.xax, Data.Angles.Tracker.r_max_filtered,'color',c.Tracker,'LineStyle','-')
 plot(ax2, Data.xax, Data.Angles.Tracker.r_min_filtered,'color',c.Tracker,'LineStyle','--')
@@ -189,8 +189,16 @@ plot(ax2, Data.xax, Data.Angles.Manual.l_max_filtered,'color',c.Manual,'LineStyl
 
 xlim(ax2,[4300 4550])
 ylim(ax2,[-120 120])
-xlabel(ax2, 'Time [ms]')
-ylabel(ax2, '\theta')
+
+%rectangle(ax2, 'Position',[4300 75 20 60], 'FaceColor',c.Gray,'EdgeColor','none')
+text(ax2, 4250, 110, 'B','FontSize',16)
+
+
+xlabel(ax2, 'Time [ms]','FontWeight','bold')
+ax2.XLabel.Position(2) = ax2.XLabel.Position(2)+5;
+
+ylabel(ax2, 'Whisker angle (\theta)','FontWeight','bold')
+ax2.YLabel.Position(1) = ax2.YLabel.Position(1)+5;
 ax2.XTick = [4300:100:4500];
 
 apos = ax2.Position;
@@ -211,6 +219,8 @@ apos = ax2.Position;
 %     'Units','points','FontSize',8)
 % text(ax2, theta_ax_width+8, 15, sprintf('R: %1.2f',Data.corr.l_max.R),...
 %     'Units','points','FontSize',8)
+
+
 %% AX3 - CORRELATION
 
 edges = [0:0.05:1];
@@ -218,7 +228,12 @@ h = hist(abs(Data.Correlation.Total),edges);
 b = bar(ax3,edges,h/sum(h), 'EdgeColor',c.Blue,'FaceColor',c.Blue,'BarWidth',1);
 xlim(ax3,[-0.05 1])
 xlabel(ax3, 'R')
+ylabel(ax3, 'count')
+title('Correlation')
+ax3.YTick = [0 0.15];
+ax3.YLabel.Position(1) = ax3.YLabel.Position(1)+0.2;
 
+text(ax3, -0.45, 0.17, 'D','FontSize',16)
 
 %% AX4 - Theta inset
 cla(ax4)
@@ -261,86 +276,102 @@ line(ax4, Data.xax([Data.TPeak, Data.Ttrogh2]), ones(1,2)*Data.Angles.Tracker.r_
     'color',c.Tracker,'LineStyle','--')
 
 
-text(ax4, Data.xax(Data.Ttrogh)+3, Data.Angles.Tracker.r_max_filtered(Data.TPeak) + 5,...
+text(ax4, Data.xax(Data.Ttrogh)+3, Data.Angles.Tracker.r_max_filtered(Data.TPeak) + 8,...
     '\it Dur.')
-text(ax4, Data.xax(Data.Ttrogh)-3, Data.Angles.Tracker.r_max_filtered(Data.TPeak) + 15,...
+text(ax4, Data.xax(Data.Ttrogh)-5, Data.Angles.Tracker.r_max_filtered(Data.TPeak) + 5,...
     '\it Amp.','Rotation',90)
-text(ax4, Data.xax(Data.Ttrogh)+3, Data.Angles.Manual.r_max_filtered(Data.Mtrogh) + 3,...
+text(ax4, Data.xax(Data.Ttrogh)+3, Data.Angles.Manual.r_max_filtered(Data.Mtrogh) + 8,...
     '\it Dur.')
-text(ax4, Data.xax(Data.MPeak)-4, Data.Angles.Manual.r_max_filtered(Data.MPeak) + 3,...
+text(ax4, Data.xax(Data.MPeak)-6, Data.Angles.Manual.r_max_filtered(Data.MPeak) + 5,...
     '\it Amp.','Rotation',90)
 
-text(ax4, Data.xax(Data.TPeak)+3, Data.Angles.Tracker.r_max_filtered(Data.TPeak) + 5,...
+text(ax4, Data.xax(Data.TPeak)+5, Data.Angles.Tracker.r_max_filtered(Data.TPeak) + 7,...
     '\it Dur.')
-text(ax4, Data.xax(Data.Ttrogh2)-3, Data.Angles.Tracker.r_max_filtered(Data.TPeak) + 7,...
+text(ax4, Data.xax(Data.Ttrogh2)-5, Data.Angles.Tracker.r_max_filtered(Data.TPeak) + 7,...
     '\it Amp.','Rotation',90)
-text(ax4, Data.xax(Data.TPeak)+3, Data.Angles.Manual.r_max_filtered(Data.Mtrogh2) + 3,...
+text(ax4, Data.xax(Data.TPeak)+3, Data.Angles.Manual.r_max_filtered(Data.Mtrogh2) + 7,...
     '\it Dur.')
-text(ax4, Data.xax(Data.MPeak)+3, Data.Angles.Manual.r_max_filtered(Data.MPeak) + 2,...
+text(ax4, Data.xax(Data.MPeak)+3, Data.Angles.Manual.r_max_filtered(Data.MPeak) + 5,...
     '\it Amp.','Rotation',90)
 
 
 text(ax4, (Data.xax(Data.MPeak)+Data.xax(Data.Mtrogh))/2 - 10 , ...
-    Data.Angles.Manual.r_max_filtered(Data.Mtrogh)+10, 'Protraction')
-text(ax4, (Data.xax(Data.MPeak)+Data.xax(Data.Mtrogh2))/2 - 8 , ...
-    Data.Angles.Manual.r_max_filtered(Data.Mtrogh2)+10, 'Retraction')
+    Data.Angles.Manual.r_max_filtered(Data.Mtrogh)+14, 'Protraction')
+text(ax4, (Data.xax(Data.MPeak)+Data.xax(Data.Mtrogh2))/2 - 5 , ...
+    Data.Angles.Manual.r_max_filtered(Data.Mtrogh2)+14, 'Retraction')
 
-xlim(ax4,[4400 4500])
-ylim(ax4,[50 120])
+
+
+xlim(ax4,[4400 4510])
+ylim(ax4,[40 120])
 xlabel(ax4, 'Time [ms]')
+ax4.XLabel.Position(2) = ax4.XLabel.Position(2)+10;
 ylabel(ax4, '\theta')
+ax4.YLabel.Position(1) = ax4.YLabel.Position(1) + 5;
 ax4.XTick = [4400 4500];
 ax4.YTick = [50 120];
 
 
+text(ax4, 4375, 115, 'C','FontSize',16)
 
 
 %% AX5 - Measured amplitudes
 
-imagesc(ax5, Data.BIN_AMPLITUDE_PRO)
+imagesc(ax5, Data.histImProA)
 set(ax5, 'YDir','normal')
 colormap(ax5, c.BlueMap)
-ax5.XTick = Data.BIN_AMPLITUDExtickax;
-ax5.XTickLabel = Data.BIN_AMPLITUDExticklabels;
-ax5.YTick = Data.BIN_AMPLITUDExtickax;
-ax5.YTickLabel = Data.BIN_AMPLITUDExticklabels;
+bins = Data.Amplitude_bins;
+stepsize = mean(diff(bins));
+ax5.XTick = [1 length(bins)/2 12];
+ax5.XTickLabel = [0 max(bins)/2 max(bins)];
+ax5.YTick = [1 length(bins)/2 12];
+ax5.YTickLabel = [0 max(bins)/2 max(bins)];
 title(ax5, 'Amplitude [deg]')
-ylabel(ax5, 'Tracker')
-text(ax5, -0.5, 0.1, 'PROTRACTION','Units','normalized', 'Rotation',90);
+ylabel(ax5, 'Tracker','Position',[-1.2 6.5 1])
+text(ax5, -0.35, 0.14, 'PROTRACTION','Units','normalized', 'Rotation',90,'FontWeight','bold');
+
+text(ax5, 0.65, 0.9, sprintf('r^2: %1.2f', Data.histImProA_Rs), Fonts.Rs)
+
+text(ax5,0-5, 16, 'F','FontSize',16)
+
+
 
 
 %% AX6 - Measured durations
-imagesc(ax6, Data.BIN_DURATION_PRO)
+imagesc(ax6, Data.histImProD)
 set(ax6, 'YDir', 'normal')
 colormap(ax6, c.BlueMap)
-ax6.XTick = Data.BIN_DURATIONxtickax;
-ax6.XTickLabel = Data.BIN_DURATIONxticklabels;
-ax6.YTick = Data.BIN_DURATIONxtickax;
-ax6.YTickLabel = Data.BIN_DURATIONxticklabels;
 
+bins = Data.Duration_bins;
 
-
+ax6.XTick = [1 length(bins)/2 length(bins)-1];
+ax6.XTickLabel = [0 max(bins)/2 max(bins)];
+ax6.YTick = [1 length(bins)/2 length(bins)-1];
+ax6.YTickLabel = [0 max(bins)/2 max(bins)];
 
 title(ax6,'Duration [ms]')
-
+text(ax6, 0.65, 0.9, sprintf('r^2: %1.2f', Data.histImProD_Rs), Fonts.Rs)
 
 %% AX7 - Measured speeds
-imagesc(ax7, Data.BIN_SPEED_PRO)
+imagesc(ax7, Data.histImProS)
 set(ax7, 'YDir', 'normal')
 colormap(ax7, c.BlueMap)
-ax7.XTick = Data.BIN_SPEEDxtickax;
-ax7.XTickLabel = Data.BIN_SPEEDxticklabels;
-ax7.YTick = Data.BIN_SPEEDxtickax;
-ax7.YTickLabel = Data.BIN_SPEEDxticklabels;
+
+bins = Data.Speed_bins;
+
+ax7.XTick = [1 length(bins)/2 length(bins)-1];
+ax7.XTickLabel = [0 max(bins)/2 max(bins)];
+ax7.YTick = [1 length(bins)/2 length(bins)-1];
+ax7.YTickLabel = [0 max(bins)/2 max(bins)];
 
 title(ax7 ,'Speed [deg/s]')
 
+text(ax7, 0.65, 0.9, sprintf('r^2: %1.2f', Data.histImProS_Rs), Fonts.Rs)
 
-
-cpos(1:2) = ax7.Position(1:2) + [par_width+10, par_heigth/2-50];
+cpos(1:2) = ax7.Position(1:2) + [par_width+10, par_heigth/2-110];
 cpos(3:4) = [10 100];
 cbar = colorbar(ax7, 'Units','points','Location','Manual',...
-    'Position',cpos);
+    'Position',cpos,'Ticks',[0 1]);
 cbar.Label.String = 'normalized count';
 
 
@@ -348,71 +379,86 @@ cbar.Label.String = 'normalized count';
 
 %% AX8 - Measured amplitudes
 
-imagesc(ax8, Data.BIN_AMPLITUDE_CON)
+imagesc(ax8, Data.histImRetA)
 set(ax8, 'YDir','normal')
 colormap(ax8, c.BlueMap)
-ax8.XTick = Data.BIN_AMPLITUDExtickax;
-ax8.XTickLabel = Data.BIN_AMPLITUDExticklabels;
-ax8.YTick = Data.BIN_AMPLITUDExtickax;
-ax8.YTickLabel = Data.BIN_AMPLITUDExticklabels;
+bins = Data.Amplitude_bins;
+stepsize = mean(diff(bins));
+ax8.XTick = [1 length(bins)/2 12];
+ax8.XTickLabel = [0 max(bins)/2 max(bins)];
+ax8.YTick = [1 length(bins)/2 12];
+ax8.YTickLabel = [0 max(bins)/2 max(bins)];
 
-
-
+text(ax8, 0.65, 0.9, sprintf('r^2: %1.2f', Data.histImRetA_Rs), Fonts.Rs)
 
 xlabel(ax8, 'Manual')
-ylabel(ax8, 'Tracker')
-text(ax8, -0.5, 0.1, 'RETRACTION','Units','normalized', 'Rotation',90);
+ylabel(ax8, 'Tracker','Position',[-1.2 6.5 1])
+text(ax8, -0.35, 0.12, 'RETRACTION','Units','normalized', 'Rotation',90,'FontWeight','bold');
 
 
 %% AX9 - duration contraction
 
-imagesc(ax9, Data.BIN_DURATION_CON)
+imagesc(ax9, Data.histImRetD)
 set(ax9, 'YDir', 'normal')
 colormap(ax9, c.BlueMap)
-ax9.XTick = Data.BIN_DURATIONxtickax;
-ax9.XTickLabel = Data.BIN_DURATIONxticklabels;
-ax9.YTick = Data.BIN_DURATIONxtickax;
-ax9.YTickLabel = Data.BIN_DURATIONxticklabels;
 
+bins = Data.Duration_bins;
 
+ax9.XTick = [1 length(bins)/2 length(bins)-1];
+ax9.XTickLabel = [0 max(bins)/2 max(bins)];
+ax9.YTick = [1 length(bins)/2 length(bins)-1];
+ax9.YTickLabel = [0 max(bins)/2 max(bins)];
 
 xlabel(ax9, 'Manual')
+text(ax9, 0.65, 0.9, sprintf('r^2: %1.2f', Data.histImRetD_Rs), Fonts.Rs)
 
 
-%% AX10 - duration contraction
+%% AX10 - speed contraction
 
-imagesc(ax10, Data.BIN_SPEED_CON)
+imagesc(ax10, Data.histImRetS)
 set(ax10, 'YDir', 'normal')
 colormap(ax10, c.BlueMap)
-ax10.XTick = Data.BIN_SPEEDxtickax;
-ax10.XTickLabel = Data.BIN_SPEEDxticklabels;
-ax10.YTick = Data.BIN_SPEEDxtickax;
-ax10.YTickLabel = Data.BIN_SPEEDxticklabels;
+
+bins = Data.Speed_bins;
+
+ax10.XTick = [1 length(bins)/2 length(bins)-1];
+ax10.XTickLabel = [0 max(bins)/2 max(bins)];
+ax10.YTick = [1 length(bins)/2 length(bins)-1];
+ax10.YTickLabel =  [0 max(bins)/2 max(bins)];
+text(ax10, 0.65, 0.9, sprintf('r^2: %1.2f', Data.histImRetS_Rs), Fonts.Rs)
 
 
 
 xlabel(ax10, 'Manual')
 
 
-%%
+%% AZ 11 - touch
+cla(ax11)
+% imagesc(ax11, Data.TOUCHCOUNT)
+% set(ax11, 'YDir','normal')
+% colormap(ax11, c.OrangeMap)
+% ax11.XTick = Data.TOUCHtickax;
+% ax11.XTickLabel = Data.TOUCHticklabel;
+% ax11.YTick = Data.TOUCHtickax;
+% ax11.YTickLabel = Data.TOUCHticklabel;
+% 
 
-imagesc(ax11, Data.TOUCHCOUNT)
-set(ax11, 'YDir','normal')
-colormap(ax11, c.OrangeMap)
-ax11.XTick = Data.TOUCHtickax;
-ax11.XTickLabel = Data.TOUCHticklabel;
-ax11.YTick = Data.TOUCHtickax;
-ax11.YTickLabel = Data.TOUCHticklabel;
-
-title(ax11, 'Touch')
-xlabel(ax11, 'Manual')
-ylabel(ax11, 'Tracker')
-
+% 
 
 
+edges = [-5:1:5];
+h = hist(Data.touch_diff,edges);
+b = bar(ax11,edges,h/sum(h), 'EdgeColor',c.Blue,'FaceColor',c.Blue,'BarWidth',1);
+xlim(ax11,[-5 5])
+ylim(ax11,[0 0.3])
+xlabel(ax11, 'R')
+ylabel(ax11, 'count')
+title('Correlation')
+ax11.YTick = [0 0.3];
+ax11.YLabel.Position(1) = ax11.YLabel.Position(1)+1;
 
-
-
-
-
+title(ax11, 'Touchcount')
+xlabel(ax11, 'Tracker-Manual')
+%ylabel(ax11, 'Tracker')
+text(ax11, -2, 11, 'E','FontSize',16)
 

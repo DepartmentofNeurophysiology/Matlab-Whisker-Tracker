@@ -56,23 +56,12 @@ function BatchProcessing_OpeningFcn(hObject, ~, handles, varargin)
 
 % Load previously saved settings
 if ~exist('Settings\Settings.mat','file')
-    makeSettings;
-else
-    
-    % Overwrite default settings with settings from previous session
-    load('Settings\Settings.mat')
-    ot = Settings.object_threshold;
-    dl = Settings.Dilationsize;
-    ort = Settings.Origin_threshold;
-    tt = Settings.trace_threshold;
-    
-    makeSettings;
-    Settings.object_threshold = ot;
-    Settings.Dilationsze = dl;
-    Settings.Origin_threshold = ort;
-    Settings.trace_threshold = tt;
+    ParameterSetup;
 end
 
+
+ load('Settings\Settings.mat')
+ 
 PathName = uigetdir('Select video parent directory');
 %PathName = 'E:\Studie\Stage Neurobiologie\Videos\Mouse 47';
 Settings.batch_dir = PathName;
@@ -243,7 +232,7 @@ handles.listbox2.String(end+1:end+size(stringout,1)) = stringout;
 
 str = handles.listbox1.String;
 
-new_str = [];
+new_str = {};
 for i = 1:size(str,1)
     if ~ismember(i, handles.selected_to_track)
         new_str{end+1} = str{i};
@@ -255,6 +244,8 @@ end
 
 
 handles.listbox1.String = new_str;
+set(handles.listbox1,'Value',1)
+set(handles.listbox2,'Value',1)
 end
 guidata(hObject, handles)
 
@@ -275,7 +266,7 @@ stringout = handles.listbox2.String(handles.selected_not_track);
 handles.listbox1.String(end+1:end+size(stringout,1)) = stringout;
 str = handles.listbox2.String;
 
-new_str = [];
+new_str = {};
 for i = 1:size(str,1)
     if ~ismember(i, handles.selected_not_track)
         new_str{end+1} = str{i};
@@ -284,6 +275,8 @@ end
 
 
 handles.listbox2.String = new_str;
+set(handles.listbox1,'Value',1)
+set(handles.listbox2,'Value',1)
 end
 
 guidata(hObject, handles)

@@ -79,8 +79,7 @@ if ~isempty(p.Results.File)
     elseif ~exist( fullfile( Files(1).folder, Files(1).name), 'file')
         fprintf('File ''%s'' does not exis\nt', fullfile( Files(1).folder, Files(1).name))
         return
-    end
-    keyboard
+    end    
     FilesToAdd = 1;
     
     
@@ -157,15 +156,20 @@ for file_index = 1:length(FilesToAdd)
             Tracker.MetaData = MetaData.Data;
             Tracker.Objects = Output.Objects;
             Tracker.Edges = Output.Edges;
+            
             Tracker.Direction = Output.Direction;
             Tracker.Nose = Output.Nose;
             Tracker.Headvec = Output.AngleVector; % Angle of head w.r.t. frame
+            
             Tracker.Traces = Output.Traces;
             Tracker.Parameters = getParams(Tracker, 'raw');
             
-            % Find specifications of gap
-            Tracker.gapinfo = detectGap(Tracker.Objects);
-            [Tracker.dist_nose_target, Tracker.exploring] = getDistTarget(Tracker);
+            Tracker.gapinfo = Output.gapinfo;
+            if isfield(Output,'Nose')
+                % Find specifications of gap
+               
+                [Tracker.dist_nose_target, Tracker.exploring] = getDistTarget(Tracker);
+            end
             
             % Parameterize Traces
             % Tracker.Parameters = getParams(Tracker,'raw');
@@ -175,13 +179,18 @@ for file_index = 1:length(FilesToAdd)
             Tracker.Parameters_clean = getParams(Tracker, 'clean');
             
             % Detect Touch
+            if isfield(Output,'Nose')
             switch(Tracker.Direction)
                 case 'Up'
                     edgeIDX = Tracker.gapinfo.edge_1;
                 case 'Down'
                     edgeIDX = Tracker.gapinfo.edge_2;
             end
-            Tracker.Touch = detectTouch(Tracker.Traces_clean, Tracker.Edges, edgeIDX);
+            else
+                edgeIDX =[Tracker.gapinfo.edge_1, Tracker.gapinfo.edge_2];
+            end
+            
+            [Tracker.Touch, Tracker.TouchFiltered] = detectTouch(Tracker.Traces_clean, Tracker.Edges, edgeIDX);
             
             
             Annotations.Output = Output;
@@ -220,7 +229,7 @@ for file_index = 1:length(FilesToAdd)
             Manual.Label_names = converted_data.Labels.Names;
             Manual.Touch = converted_data.Touch;
             
-            Manual.Touch_auto = detectTouch(Manual.Traces, Manual.Edges, edgeIDX);
+            [Manual.Touch_auto, Manual.Touch_autoFiltered] = detectTouch(Manual.Traces, Manual.Edges, edgeIDX);
             
             Annotations.Manual = Manual;
             fprintf(' - Manual');

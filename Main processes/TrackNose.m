@@ -3,56 +3,97 @@ function Output = TrackNose(Settings,Output)
 % Tracks nose position and headangle:
 %   - Estimate movement axis (X/Y) and direction (Up/Down)
 %   - Track nose and headangle
+
+
 %%
+
+Default_direction = [];
+if exist(fullfile(Settings.PathName, 'Selected_frames.mat'), 'file')
+    dataIn = load(fullfile(Settings.PathName, 'Selected_frames.mat'));
+    id = [];
+    for i = 1:size(dataIn.Output, 2)
+        if strcmp(Settings.FileName, dataIn.Output(i).Video)
+            id = i;
+        end
+    end
+    
+    if ~isempty(id)
+        if isfield(dataIn.Output(id), 'Direction')
+            if ~isempty(dataIn.Output(id).Direction)
+                if dataIn.Output(id).Direction == 1
+                    Default_direction = 'Up';
+                elseif dataIn.Output(id).Direction == 2
+                    Default_direction = 'Down';
+                end
+            end
+        end
+        
+    end
+end
+    
+
 
 % Extract variables
 nframes = Settings.Nframes;
-stepsize = Settings.nose_interval;
-Base(1:numel(1:stepsize:nframes),1:2) = NaN;
-Frames_filtered = cell(numel(1:stepsize:nframes),1);
-
+stepsize = 20;%Settings.nose_interval;
+frameidx = 1:stepsize:nframes;
+Base(1:length(frameidx),1:2) = NaN;
 
 % Extract centre of mass (Base) for frames
-store_idx = 1;
+
 h = waitbar(0,'Tracking Nose');
-for framenr = 1:stepsize:nframes
+for i = 1:length(frameidx)
     
-    % Load frame
-    Settings.Current_frame = framenr;
-    frame_in = LoadFrame(Settings);
-    frame = frame_in;
+    % Load Frame
+    Settings.Current_frame = frameidx(i);
+    Frame = LoadFrame(Settings);
+    Frame = im2double( abs(Frame));
     
-    % binarize frame
-    frame( frame > Settings.Silhouettethreshold ) = 0;
-    frame( find( frame )) = 1;  %#ok<*FNDSB>
-    frame( find( Output.Objects )) = 0;
+    Frame = imadjust(Frame, [],[], Settings.Gamma);
     
-    % Apply mask to filter objects/cable
-    frame_normal = frame; 
-    frame = imdilate( frame, strel('diamond',5));
-    frame = imerode(frame, strel('diamond',45));
-    mask = imdilate(frame, strel('diamond',40));    
-    frame = frame_normal.*mask; 
+    if Settings.doGaussian
+        ng = Settings.Gaussian_kernel_size;
+        kfil = zeros(1, ng);
+        kfil(1:ceil(ng/2)) = 1:ceil(ng/2);
+        kfil(ceil(ng/2)+1:end) = max(kfil)-1:-1:1;
+        Kgaus = repmat(kfil,[ng, 1]) + repmat(kfil,[ng, 1])';
+        Kgaus = Kgaus./ sum(sum(Kgaus));
+        Frame = conv2(Frame, Kgaus, 'same');
+    end
     
     
-    Frames_filtered{store_idx} = frame;  
     
-    % Only continue if mouse is present in frame
-    if numel(find(frame)) < 3000       
-        Frames_filtered{store_idx}(:) = 0;        
-        waitbar(framenr/nframes)
-         store_idx = store_idx+1;
+    Frame = adapthisteq(Frame, 'NBins',256,'NumTiles',[5 5]);
+    minval = min(min(Frame));
+    Frame = Frame - minval;
+    Frame = Frame./max(max(Frame));
+    
+    SLN = zeros(size(Frame));
+    SLN(Frame <= Settings.Shape_threshold) = 1;
+    SLN(Output.Objects == 1) = 0;
+    
+%     FM = imdilate(SLN, strel('diamond', 5));
+%     FM = imerode(FM, strel('diamond', 45));
+%     FM = imdilate(Frame, strel('diamond', 40));
+    
+    Frame = SLN;
+
+    
+    % Only continue if mouse is present in Frame
+    if numel(find(Frame)) < 3000  
+        waitbar(i/(2*length(frameidx)))
         continue
     end
     
     % Store CoM
-    sx = sum(frame,1);
-    sy = sum(frame,2);
-    Base(store_idx,:) = [mean(find(sy)) mean(find(sx))];
-    store_idx = store_idx+1;
-    waitbar(framenr/nframes)
+    sx = sum(Frame,1);
+    sy = sum(Frame,2);
+    Base(i,:) = [mean(find(sy)) mean(find(sx))];   
+    waitbar(i/(2*length(frameidx)))
 end
-close(h);
+
+
+%%
 ax_default = 'Y'; % in our data mice only move along Y, verify correct movement
 
 % Logic to extract movement axis
@@ -74,6 +115,9 @@ end
 if ~strcmp(ax_default,  ax_dir)
     disp('Measured direction axis does not match default axis...')
     disp('continue with default axis')
+    ax_dir = 'Y';
+    base_idx = 1;
+    f_idx = 2;
 end
 
 % Logic to extract movement direction
@@ -86,6 +130,11 @@ elseif base_slope(1) > 0
     Direction = 'Down';
 end
 
+if ~isempty(Default_direction)
+    fprintf('Old direction: %s , New direction: %s\n', Direction, Default_direction);
+    Direction = Default_direction;
+end
+
 
 
 %% Nose and headangle tracking
@@ -93,17 +142,48 @@ end
 Nose_raw = [];
 theta = 1:1:360;
 
-Nose_raw(1:size(Frames_filtered,1), 1:2) = NaN;
-AngleVector(1:size(Frames_filtered,1) ,1:2) = NaN;
+Nose_raw(1:length(frameidx), 1:2) = NaN;
+AngleVector(1:length(frameidx) ,1:2) = NaN;
 
-for i = 1:size(Frames_filtered,1)
+for i = 1:length(frameidx)
     if isnan(Base(i,1))  
         continue
     end
     
-    % Find nose as point closest to target platform
-    frame = Frames_filtered{i};
-    f_sum = sum(frame ,f_idx)./ size(frame, f_idx);
+    % Load Frame
+    Settings.Current_frame = frameidx(i);
+    Frame = LoadFrame(Settings);
+    Frame = im2double( abs(Frame));
+    
+    Frame = imadjust(Frame, [],[], Settings.Gamma);
+    
+    if Settings.doGaussian
+        ng = Settings.Gaussian_kernel_size;
+        kfil = zeros(1, ng);
+        kfil(1:ceil(ng/2)) = 1:ceil(ng/2);
+        kfil(ceil(ng/2)+1:end) = max(kfil)-1:-1:1;
+        Kgaus = repmat(kfil,[ng, 1]) + repmat(kfil,[ng, 1])';
+        Kgaus = Kgaus./ sum(sum(Kgaus));
+        Frame = conv2(Frame, Kgaus, 'same');
+    end
+    
+    
+    
+    Frame = adapthisteq(Frame, 'NBins',256,'NumTiles',[5 5]);
+    minval = min(min(Frame));
+    Frame = Frame - minval;
+    Frame = Frame./max(max(Frame));
+    
+    SLN = zeros(size(Frame));
+    SLN(Frame <= Settings.Shape_threshold) = 1;
+    SLN(Output.Objects == 1) = 0;
+    
+    FM = imdilate(SLN, strel('diamond', 5));
+    FM = imerode(FM, strel('diamond', 45));
+    FM = imdilate(FM, strel('diamond', 55));
+    
+    Frame = SLN.*FM;    
+    f_sum = sum(Frame ,f_idx)./ size(Frame, f_idx);
     switch(Direction)
         case 'Up'
             X = find( f_sum > 0, 1, 'first');
@@ -111,23 +191,24 @@ for i = 1:size(Frames_filtered,1)
         case 'Down'
             X = find( f_sum > 0, 1, 'last');
     end
-    Y = round( mean( find( frame(X,:)), 'omitnan' ));
+    
+    
+    Y = round( mean( find( Frame(X,:)), 'omitnan' ));
     Nose_raw(i,:) = [X, Y];    
-    frame = edge(frame);
-    
-    
+    Frame = edge(Frame);
+        
     % Get headangle:
     % - find non-zero entries in circle around nose
     Cx = round(Nose_raw( i, 2) + 40*sind(theta));
     Cx = [Cx, Cx+1]; %#ok<AGROW>
     Cy = round(Nose_raw( i, 1) + 40*cosd(theta));
     Cy = [Cy, Cy+1]; %#ok<AGROW>
-    IDX = find(Cx > 1 & Cx < size(frame,2) & Cy > 1 & Cy< size(frame,1));
+    IDX = find(Cx > 1 & Cx < size(Frame,2) & Cy > 1 & Cy< size(Frame,1));
    
-    C = sub2ind( size(frame), Cy(IDX), Cx(IDX) ); 
+    C = sub2ind( size(Frame), Cy(IDX), Cx(IDX) ); 
     PTS = [];
-    PTS(:,1) = find( frame( C ));
-    [PTS(1:length(PTS),2),PTS(1:length(PTS),1)] = ind2sub(size(frame),C(PTS));    
+    PTS(:,1) = find( Frame( C ));
+    [PTS(1:length(PTS),2),PTS(1:length(PTS),1)] = ind2sub(size(Frame),C(PTS));    
   
    
     % - clean entries to find points on edge only
@@ -187,11 +268,14 @@ for i = 1:size(Frames_filtered,1)
         
     else
         AngleVector(i,1:2) = NaN;
-    end    
+    end 
+    
+        waitbar((length(frameidx)+i)/(2*length(frameidx)))
+
    
 end
 
-
+close(h);
 %% Fit data
 track_idx = 1:stepsize:nframes;
 keep = find(~isnan( Nose_raw(:,1)));

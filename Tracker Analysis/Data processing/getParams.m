@@ -25,10 +25,10 @@ function Parameters = getParams(Tracker,type)
 switch(type)
     case 'raw'
         Traces = Tracker.Traces;
-        nframes = size(Traces, 1);
+        nframes = min([size(Traces, 1), size(Tracker.Headvec,1)]);
     case 'clean'
         Traces = Tracker.Traces_clean;
-        nframes = size(Traces, 2);
+        nframes = min([size(Traces, 2), size(Tracker.Headvec,1)]);
 end
 
 nparams = 8;
@@ -39,9 +39,11 @@ dist_px = 20;
 for i = 1:nframes
     
     ntraces = size(Traces{i},2);
-    headangle  = atan2d(Tracker.Headvec(i,2), Tracker.Headvec(i,1));
-    R = [cosd(headangle), -sind(headangle); sind(headangle), cosd(headangle)];
-    nose = Tracker.Nose(i,:);
+    if isfield(Tracker,'Nose')
+        headangle  = atan2d(Tracker.Headvec(i,2), Tracker.Headvec(i,1));
+        R = [cosd(headangle), -sind(headangle); sind(headangle), cosd(headangle)];
+        nose = Tracker.Nose(i,:);
+    end
     
     m = [];
    
@@ -85,11 +87,15 @@ for i = 1:nframes
             end
             
             % Theta corrected
-            m(j,6) = m(j,5) + (headangle+180);
-            if m(j,6) > 180
-                m(j,6) = m(j,6) - 360;
-            elseif m(j,6) < -180
-                m(j,6) = m(j,6) + 360;
+            if isfield(Tracker,'Nose')
+                m(j,6) = (headangle+180) - m(j,5);
+                if m(j,6) > 180
+                    m(j,6) = m(j,6) - 360;
+                elseif m(j,6) < -180
+                    m(j,6) = m(j,6) + 360;
+                end
+            else
+                m(j,6) = NaN;
             end
             
             % Length
@@ -100,28 +106,41 @@ for i = 1:nframes
             m(j,8) = abs(m(j,6)-atan2d(v2(2), v2(1)));
             
             % corrected origin position
-            pt = m(j,1:2) - nose;
-            pt = R*pt';
-            m(j,9) = pt(1);
-            m(j,10) = pt(2);
+            if isfield(Tracker,'Nose')
+                pt = m(j,1:2) - nose;
+                pt = R*pt';
+                m(j,9) = pt(1);
+                m(j,10) = pt(2);
             
-            % corrected tip position
-            pt = m(j,3:4) - nose;
-            pt = R*pt';
-            m(j,11) = pt(1);
-            m(j,12) = pt(2);
+                % corrected tip position
+                pt = m(j,3:4) - nose;
+                pt = R*pt';
+                m(j,11) = pt(1);
+                m(j,12) = pt(2);
+            else
+                m(j,9:12) = NaN;
+            end
             
             % headangle
-            m(j,13) = headangle+180;
-            if m(j,13) > 180
-                m(j,13) =  m(j,13) - 360;
-            elseif m(j,13) < -180
-                m(j,13) =  m(j,13) + 360;
+            if isfield(Tracker,'Nose')
+                m(j,13) = headangle+180;
+                if m(j,13) > 180
+                    m(j,13) =  m(j,13) - 360;
+                elseif m(j,13) < -180
+                    m(j,13) =  m(j,13) + 360;
+                end
+            else
+                m(j,13)= NaN;
             end
             
             % nose
-            m(j,14) = nose(1);
-            m(j,15) = nose(2);
+            
+            if isfield(Tracker,'Nose')
+                m(j,14) = nose(1);
+                m(j,15) = nose(2);
+            else
+                m(j,14:15) = NaN;
+            end
             
             if size(trace, 1) > 5
                 % theta tip
@@ -148,11 +167,15 @@ for i = 1:nframes
                 end
 
                 % theta tip corrected
-                m(j,17) = m(j,16) + (headangle+180);
-                if m(j,17) > 180
-                    m(j,17) = m(j,17) - 360;
-                elseif m(j,17) < -180
-                    m(j,17) = m(j,17) + 360;
+                if isfield(Tracker,'Nose')
+                    m(j,17) = m(j,16) + (headangle+180);
+                    if m(j,17) > 180
+                        m(j,17) = m(j,17) - 360;
+                    elseif m(j,17) < -180
+                        m(j,17) = m(j,17) + 360;
+                    end
+                else
+                    m(j,17) = NaN;
                 end
 
 
@@ -164,6 +187,6 @@ for i = 1:nframes
             
         end
     end
-    
+  
     Parameters{i} = m;
 end

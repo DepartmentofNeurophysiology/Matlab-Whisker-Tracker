@@ -57,6 +57,7 @@ addParameter(p,'FrameSelect','full')
 addParameter(p,'FrameRange',[1,2])
 addParameter(p,'dExp', 0);
 addParameter(p,'dExpT', 'avi');
+addParameter(p,'FrameRate',30);
 parse(p, varargin{:});
 
 Files = dir(fullfile(p.Results.dPath,'*_compiled.mat'));
@@ -82,7 +83,7 @@ elseif ~isempty(p.Results.FileName)
 end
 disp(video_file)
 Settings = Annotations.Settings;
-Settings.Video(1) = 'E';
+Settings.Video = video_file;
 
 
 
@@ -99,22 +100,22 @@ end
 
 if p.Results.dNose;    Nose = Annotations.Tracker.Nose; Angle = Annotations.Tracker.Headvec; end
 if p.Results.dMraw;    Manual_raw = Annotations.Manual.RawNotations; end
-if p.Results.dMclean;  Manual_clean = Annotations.Manual.Traces; end
+if p.Results.dMclean || p.Results.dMtouch;  Manual_clean = Annotations.Manual.Traces; end
 if p.Results.dMtouch;  Manual_touch = Annotations.Manual.Touch; end
 if p.Results.dTraw;    Tracker_raw = Annotations.Tracker.Traces; end
-if p.Results.dTclean;  Tracker_clean = Annotations.Tracker.Traces_clean; end
+if p.Results.dTclean || p.Results.dTtouch;  Tracker_clean = Annotations.Tracker.Traces_clean; end
 if p.Results.dTtouch;  Tracker_touch = Annotations.Tracker.Touch; end
 
 
 if isfield(Annotations,'Tracker')
     gapwidth = abs(Annotations.Tracker.gapinfo.edge_1 - Annotations.Tracker.gapinfo.edge_2);
-    nframes = size(Annotations.Output.Nose, 1);
+    nframes = size(Annotations.Output.Traces, 1);
 else
     gapwidth = 200;
     keyboard % implement 'nframes'
 end
 
-Colors = makeColor(gapwidth);
+Colors = makeColor('gapwidth',gapwidth);
 
 
 display.fig = figure(1);
@@ -168,7 +169,7 @@ switch(p.Results.FrameSelect)
         end
         id = [find(idx == 1, 1, 'first') find(idx==1, 1, 'last')];  
         if isempty(id)
-            display('no annotated frames')
+            disp('no annotated frames')
             return
         end
         display.show_frames = id(1):id(2);
@@ -181,6 +182,7 @@ if p.Results.dExp
         case 'avi'
             vidname = [video_file(1:end-4) '_Annotated'];
             vidout = VideoWriter(vidname, 'Motion JPEG AVI');
+            vidout.FrameRate = p.Results.FrameRate;
             open(vidout)
             
         case 'gif'
@@ -209,14 +211,15 @@ for id = 1:length(display.show_frames)
     
     cla(display.ax1);
     imagesc(display.ax1, frame);
+    caxis(display.ax1,[0 1])
     hold(display.ax1, 'on')
-    axis(display.ax1,'off')
-    
+    axis(display.ax1,'off')    
     if p.Results.d2A
         cla(display.ax2);
         imagesc(display.ax2, frame);
         hold(display.ax2, 'on');
         axis(display.ax2, 'off')
+        
     end
     
     
@@ -313,7 +316,7 @@ for id = 1:length(display.show_frames)
         end
     end
     if p.Results.dMtouch
-        if ~isempty(Manual_touch.pt{frame_index})
+        if frame_index < size(Manual_touch.pt,2) & ~isempty(Manual_touch.pt{frame_index})
             pts = Manual_touch.pt{frame_index};
             scatter(display.(p.Results.Max),pts(:,2),pts(:,1),'MarkerFaceColor',Colors.manual_touch,...
                 'MarkerEdgeColor',Colors.manual_touch,'Marker',Colors.manual_touch_style)

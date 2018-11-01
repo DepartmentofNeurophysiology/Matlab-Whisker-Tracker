@@ -5,6 +5,8 @@ example_file = 1;
 example_frame = 1326;
 Datapath = 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance';
 comp_files = dir(fullfile(Datapath, '*compiled.mat'));
+
+%%
 load(fullfile(Datapath, 'Frames_with_nose.mat'))
 load(fullfile(comp_files(example_file).folder, comp_files(example_file).name))
 
@@ -132,16 +134,23 @@ Data.Angles = A;
 
 dt = 1000/300;
 Data.xax = [1:size(A.Tracker.r_min,2)]*dt;
-Data.corr.l_min = compareThetas(Data.Angles.Tracker.l_min_filtered, Data.Angles.Tracker.l_min_peaks, ...
-    Data.Angles.Manual.l_min_filtered, Data.Angles.Manual.l_min_peaks, frange);
-Data.corr.l_max = compareThetas(Data.Angles.Tracker.l_max_filtered, Data.Angles.Tracker.l_max_peaks, ...
-    Data.Angles.Manual.l_max_filtered, Data.Angles.Manual.l_max_peaks, frange);
-Data.corr.r_min = compareThetas(Data.Angles.Tracker.r_min_filtered, Data.Angles.Tracker.r_min_peaks, ...
-    Data.Angles.Manual.r_min_filtered, Data.Angles.Manual.r_min_peaks,frange);
-Data.corr.r_max = compareThetas(Data.Angles.Tracker.r_max_filtered, Data.Angles.Tracker.r_max_peaks, ...
-    Data.Angles.Manual.r_max_filtered, Data.Angles.Manual.r_max_peaks,frange);
+% Data.corr.l_min = compareThetas(Data.Angles.Tracker.l_min_filtered, Data.Angles.Tracker.l_min_peaks, ...
+%     Data.Angles.Manual.l_min_filtered, Data.Angles.Manual.l_min_peaks, frange);
+% Data.corr.l_max = compareThetas(Data.Angles.Tracker.l_max_filtered, Data.Angles.Tracker.l_max_peaks, ...
+%     Data.Angles.Manual.l_max_filtered, Data.Angles.Manual.l_max_peaks, frange);
+% Data.corr.r_min = compareThetas(Data.Angles.Tracker.r_min_filtered, Data.Angles.Tracker.r_min_peaks, ...
+%     Data.Angles.Manual.r_min_filtered, Data.Angles.Manual.r_min_peaks,frange);
+% Data.corr.r_max = compareThetas(Data.Angles.Tracker.r_max_filtered, Data.Angles.Tracker.r_max_peaks, ...
+%     Data.Angles.Manual.r_max_filtered, Data.Angles.Manual.r_max_peaks,frange);
 
-
+Data.corr.l_min = compareThetas(Data.Angles.Tracker.l_min_filtered, [], ...
+    Data.Angles.Manual.l_min_filtered, [], frange);
+Data.corr.l_max = compareThetas(Data.Angles.Tracker.l_max_filtered, [], ...
+    Data.Angles.Manual.l_max_filtered,[], frange);
+Data.corr.r_min = compareThetas(Data.Angles.Tracker.r_min_filtered, [], ...
+    Data.Angles.Manual.r_min_filtered,[],frange);
+Data.corr.r_max = compareThetas(Data.Angles.Tracker.r_max_filtered, [], ...
+    Data.Angles.Manual.r_max_filtered,[],frange);
 %% AX3 - Correlation
 h = waitbar(0, 'doing things');
 for i = 1:size(comp_files,1)
@@ -164,17 +173,25 @@ for i = 1:size(comp_files,1)
     Angles = getAngles(Annotations);
     
     
-    
-    
-    Out(i).l_min = compareThetas(Angles.Tracker.l_min_filtered, Angles.Tracker.l_min_peaks, ...
-        Angles.Manual.l_min_filtered, Angles.Manual.l_min_peaks, frange);
-    Out(i).l_max = compareThetas(Angles.Tracker.l_max_filtered, Angles.Tracker.l_max_peaks, ...
-        Angles.Manual.l_max_filtered, Angles.Manual.l_max_peaks, frange);
-    Out(i).r_min = compareThetas(Angles.Tracker.r_min_filtered, Angles.Tracker.r_min_peaks, ...
-        Angles.Manual.r_min_filtered, Angles.Manual.r_min_peaks,frange);
-    Out(i).r_max = compareThetas(Angles.Tracker.r_max_filtered, Angles.Tracker.r_max_peaks, ...
-        Angles.Manual.r_max_filtered, Angles.Manual.r_max_peaks,frange);
-    
+%     
+%     
+%     Out(i).l_min = compareThetas(Angles.Tracker.l_min_filtered, Angles.Tracker.l_min_peaks, ...
+%         Angles.Manual.l_min_filtered, Angles.Manual.l_min_peaks, frange);
+%     Out(i).l_max = compareThetas(Angles.Tracker.l_max_filtered, Angles.Tracker.l_max_peaks, ...
+%         Angles.Manual.l_max_filtered, Angles.Manual.l_max_peaks, frange);
+%     Out(i).r_min = compareThetas(Angles.Tracker.r_min_filtered, Angles.Tracker.r_min_peaks, ...
+%         Angles.Manual.r_min_filtered, Angles.Manual.r_min_peaks,frange);
+%     Out(i).r_max = compareThetas(Angles.Tracker.r_max_filtered, Angles.Tracker.r_max_peaks, ...
+%         Angles.Manual.r_max_filtered, Angles.Manual.r_max_peaks,frange);
+%        
+    Out(i).l_min = compareThetas(Angles.Tracker.l_min_filtered, [], ...
+        Angles.Manual.l_min_filtered, [], frange);
+    Out(i).l_max = compareThetas(Angles.Tracker.l_max_filtered, [], ...
+        Angles.Manual.l_max_filtered, [], frange);
+    Out(i).r_min = compareThetas(Angles.Tracker.r_min_filtered, [], ...
+        Angles.Manual.r_min_filtered, [],frange);
+    Out(i).r_max = compareThetas(Angles.Tracker.r_max_filtered,[], ...
+        Angles.Manual.r_max_filtered, [],frange);
     
     waitbar(i/size(comp_files,1))
 end
@@ -205,137 +222,316 @@ Data.Correlation.Total = [...
 %% AX4 - theta inset
 snaptime = 4410;
 
-idx = Data.Angles.Tracker.r_max_peaks*dt - snaptime;
-id = find(idx > 0,1,'first');
-Data.TPeak = Data.Angles.Tracker.r_max_peaks(id);
-idx = Data.Angles.Tracker.r_max_troghs*dt - snaptime;
-id = find(idx > 0,1,'first');
-Data.Ttrogh= Data.Angles.Tracker.r_max_troghs(id);
-Data.Ttrogh2= Data.Angles.Tracker.r_max_troghs(id+1);
+data = Data.Angles.Tracker.r_max_filtered;
+if mean(data, 'omitnan') > 0
+    sgn = 1;
+elseif mean(data, 'omitnan') < 0
+    sgn = -1;
+end
+[~, peaks] = findpeaks(-sgn*data, 'MinPeakDistance',3);
+[~, troghs] = findpeaks(sgn*data, 'MinPeakDistance', 3);
+I_ret = peaks*dt - snaptime;
+id = find(I_ret > 0,1,'first');
+Data.TPeak = peaks(id);
 
 
-idx = Data.Angles.Manual.r_max_peaks*dt - snaptime;
-id = find(idx > 0,1,'first');
-Data.MPeak = Data.Angles.Manual.r_max_peaks(id);
+I_ret = troghs*dt - snaptime;
+id = find(I_ret > 0,1,'first');
+Data.Ttrogh= troghs(id);
+Data.Ttrogh2= troghs(id+1);
 
-idx = Data.Angles.Manual.r_max_troghs*dt - snaptime;
-id = find(idx > 0,1,'first');
-Data.Mtrogh= Data.Angles.Manual.r_max_troghs(id);
-Data.Mtrogh2 = Data.Angles.Manual.r_max_troghs(id+1);
+%%
+data = Data.Angles.Manual.r_max_filtered;
+if mean(data, 'omitnan') > 0
+    sgn = 1;
+elseif mean(data, 'omitnan') < 0
+    sgn = -1;
+end
+[pval, peaks] = findpeaks(-sgn*data, 'MinPeakDistance',3);
+[p, troghs] = findpeaks(sgn*data, 'MinPeakDistance', 3);
+I_ret = peaks*dt - snaptime;
+id = find(I_ret > 0,1,'first');
+Data.MPeak = peaks(id);
+
+I_ret = troghs*dt - snaptime;
+id = find(I_ret > 0,1,'first');
+Data.Mtrogh= troghs(id);
+Data.Mtrogh2 = troghs(id+1);
 
 
 
 %% AX5-8 measured parameters
 
-
 h = waitbar(0,'gathering data');
 
-for i =   1:size(comp_files,1)
-    %%
-    % Load file
-    load(fullfile(comp_files(i).folder, comp_files(i).name))
-    if isempty(Annotations)
-        disp(i)
-        continue
-    end
-    A = getAngles(Annotations);
+for i = 1:size(comp_files, 1)
     
-    if ~isfield(A, 'Manual')
-        disp(i)
-        continue
-    end
-    [Mrmi, Trmi] = getWhiskStats(A.Manual.r_min_filtered, A.Manual.r_min_peaks, A.Manual.r_min_troghs,...
-        A.Tracker.r_min_filtered, A.Tracker.r_min_peaks, A.Tracker.r_min_troghs);
-    [Mlmi, Tlmi] = getWhiskStats(-A.Manual.l_min_filtered, A.Manual.l_min_peaks, A.Manual.l_min_troghs,...
-        -A.Tracker.l_min_filtered, A.Tracker.l_min_peaks, A.Tracker.l_min_troghs);
-    [Mrma, Trma] = getWhiskStats(A.Manual.r_max_filtered, A.Manual.r_max_peaks, A.Manual.r_max_troghs,...
-        A.Tracker.r_max_filtered, A.Tracker.r_max_peaks, A.Tracker.r_max_troghs);
-    [Mlma, Tlma] = getWhiskStats(-A.Manual.l_max_filtered, A.Manual.l_max_peaks, A.Manual.l_max_troghs,...
-        -A.Tracker.l_max_filtered, A.Tracker.l_max_peaks, A.Tracker.l_max_troghs);
+     C = [Data.Correlation.Rlmin(i), Data.Correlation.Rlmax(i), Data.Correlation.Rrmin(i), Data.Correlation.Rrmax(i)];
+%     if numel(find(C < 0.5)) > 1
+%         disp(i)
+%         continue
+%     end
+%     
+    
+    load(fullfile(comp_files(i).folder, comp_files(i).name))
+    
+    p = getWhiskingStats(Annotations);
     
     if i == 1
-        LeftMinPro = table(...
-            Mlmi.protraction_amplitude', Mlmi.protraction_duration', Mlmi.protraction_speed',...
-            Tlmi.protraction_amplitude', Tlmi.protraction_duration', Tlmi.protraction_speed',...
-            'VariableNames',{'Man_pro_a','Man_pro_d','Man_pro_s','Trck_pro_a','Trck_pro_d','Trck_pro_s'});
-        RightMinPro = table(...
-            Mrmi.protraction_amplitude', Mrmi.protraction_duration', Mrmi.protraction_speed',...
-            Trmi.protraction_amplitude', Trmi.protraction_duration', Trmi.protraction_speed',...
-            'VariableNames',{'Man_pro_a','Man_pro_d','Man_pro_s','Trck_pro_a','Trck_pro_d','Trck_pro_s'});
-        LeftMaxPro = table(...
-            Mlma.protraction_amplitude', Mlma.protraction_duration', Mlma.protraction_speed',...
-            Tlma.protraction_amplitude', Tlma.protraction_duration', Tlma.protraction_speed',...
-            'VariableNames',{'Man_pro_a','Man_pro_d','Man_pro_s','Trck_pro_a','Trck_pro_d','Trck_pro_s'});
-        RightMaxPro = table(...
-            Mrma.protraction_amplitude', Mrma.protraction_duration', Mrma.protraction_speed',...
-            Trma.protraction_amplitude', Trma.protraction_duration', Trma.protraction_speed',...
-            'VariableNames',{'Man_pro_a','Man_pro_d','Man_pro_s','Trck_pro_a','Trck_pro_d','Trck_pro_s'});
-        
-        LeftMinCon = table(...
-            Mlmi.contraction_amplitude', Mlmi.contraction_duration', Mlmi.contraction_speed',...
-            Tlmi.contraction_amplitude', Tlmi.contraction_duration', Tlmi.contraction_speed',...
-            'VariableNames',{'Man_Con_a','Man_Con_d','Man_Con_s','Trck_Con_a','Trck_Con_d','Trck_Con_s'});
-        RightMinCon = table(...
-            Mrmi.contraction_amplitude', Mrmi.contraction_duration', Mrmi.contraction_speed',...
-            Trmi.contraction_amplitude', Trmi.contraction_duration', Trmi.contraction_speed',...
-            'VariableNames',{'Man_Con_a','Man_Con_d','Man_Con_s','Trck_Con_a','Trck_Con_d','Trck_Con_s'});
-        LeftMaxCon = table(...
-            Mlma.contraction_amplitude', Mlma.contraction_duration', Mlma.contraction_speed',...
-            Tlma.contraction_amplitude', Tlma.contraction_duration', Tlma.contraction_speed',...
-            'VariableNames',{'Man_Con_a','Man_Con_d','Man_Con_s','Trck_Con_a','Trck_Con_d','Trck_Con_s'});
-        RightMaxCon = table(...
-            Mrma.contraction_amplitude', Mrma.contraction_duration', Mrma.contraction_speed',...
-            Trma.contraction_amplitude', Trma.contraction_duration', Trma.contraction_speed',...
-            'VariableNames',{'Man_Con_a','Man_Con_d','Man_Con_s','Trck_Con_a','Trck_Con_d','Trck_Con_s'});
-        
+        Pars = p;
     else
-        LeftMinProNew = table(...
-            Mlmi.protraction_amplitude', Mlmi.protraction_duration', Mlmi.protraction_speed',...
-            Tlmi.protraction_amplitude', Tlmi.protraction_duration', Tlmi.protraction_speed',...
-            'VariableNames',{'Man_pro_a','Man_pro_d','Man_pro_s','Trck_pro_a','Trck_pro_d','Trck_pro_s'});
-        RightMinProNew = table(...
-            Mrmi.protraction_amplitude', Mrmi.protraction_duration', Mrmi.protraction_speed',...
-            Trmi.protraction_amplitude', Trmi.protraction_duration', Trmi.protraction_speed',...
-            'VariableNames',{'Man_pro_a','Man_pro_d','Man_pro_s','Trck_pro_a','Trck_pro_d','Trck_pro_s'});
-        LeftMaxProNew = table(...
-            Mlma.protraction_amplitude', Mlma.protraction_duration', Mlma.protraction_speed',...
-            Tlma.protraction_amplitude', Tlma.protraction_duration', Tlma.protraction_speed',...
-            'VariableNames',{'Man_pro_a','Man_pro_d','Man_pro_s','Trck_pro_a','Trck_pro_d','Trck_pro_s'});
-        RightMaxProNew = table(...
-            Mrma.protraction_amplitude', Mrma.protraction_duration', Mrma.protraction_speed',...
-            Trma.protraction_amplitude', Trma.protraction_duration', Trma.protraction_speed',...
-            'VariableNames',{'Man_pro_a','Man_pro_d','Man_pro_s','Trck_pro_a','Trck_pro_d','Trck_pro_s'});
-        
-        LeftMinConNew = table(...
-            Mlmi.contraction_amplitude', Mlmi.contraction_duration', Mlmi.contraction_speed',...
-            Tlmi.contraction_amplitude', Tlmi.contraction_duration', Tlmi.contraction_speed',...
-            'VariableNames',{'Man_Con_a','Man_Con_d','Man_Con_s','Trck_Con_a','Trck_Con_d','Trck_Con_s'});
-        RightMinConNew = table(...
-            Mrmi.contraction_amplitude', Mrmi.contraction_duration', Mrmi.contraction_speed',...
-            Trmi.contraction_amplitude', Trmi.contraction_duration', Trmi.contraction_speed',...
-            'VariableNames',{'Man_Con_a','Man_Con_d','Man_Con_s','Trck_Con_a','Trck_Con_d','Trck_Con_s'});
-        LeftMaxConNew = table(...
-            Mlma.contraction_amplitude', Mlma.contraction_duration', Mlma.contraction_speed',...
-            Tlma.contraction_amplitude', Tlma.contraction_duration', Tlma.contraction_speed',...
-            'VariableNames',{'Man_Con_a','Man_Con_d','Man_Con_s','Trck_Con_a','Trck_Con_d','Trck_Con_s'});
-        RightMaxConNew = table(...
-            Mrma.contraction_amplitude', Mrma.contraction_duration', Mrma.contraction_speed',...
-            Trma.contraction_amplitude', Trma.contraction_duration', Trma.contraction_speed',...
-            'VariableNames',{'Man_Con_a','Man_Con_d','Man_Con_s','Trck_Con_a','Trck_Con_d','Trck_Con_s'});
-        
-        LeftMinPro = [LeftMinPro; LeftMinProNew];
-        RightMinPro = [RightMinPro; RightMinProNew];
-        LeftMaxPro = [LeftMaxPro; LeftMaxProNew];
-        RightMaxPro = [RightMaxPro; RightMaxProNew];
-        
-        LeftMinCon = [LeftMinCon; LeftMinConNew];
-        RightMinCon = [RightMinCon; RightMinConNew];
-        LeftMaxCon = [LeftMaxCon; LeftMaxConNew];
-        RightMaxCon = [RightMaxCon; RightMaxConNew];
+%         if istable(p.Tr_min)
+%             Pars.Tr_min = [Pars.Tr_min; p.Tr_min];
+%         end
+%         if istable(p.Tr_max)
+%             Pars.Tr_max = [Pars.Tr_max; p.Tr_max];
+%         end
+%         if istable(p.Tl_min)
+%             Pars.Tl_min = [Pars.Tl_min; p.Tl_min];
+%         end
+%         if istable(p.Tl_max)
+%             Pars.Tl_max = [Pars.Tl_max; p.Tl_max];
+%         end
+%         
+%         if ~isempty(p.Mr_min)
+%             Pars.Mr_min = [Pars.Mr_min; p.Mr_min];
+%         end
+%         if ~isempty(p.Mr_max)
+%             Pars.Mr_max = [Pars.Mr_max; p.Mr_max];
+%         end
+%         if~isempty(p.Ml_min)
+%             Pars.Ml_min = [Pars.Ml_min; p.Ml_min];
+%         end
+%         if~isempty(p.Ml_max)
+%             Pars.Ml_max = [Pars.Ml_max; p.Ml_max];
+%         end
+%         
+%         
         
         
+        if istable(p.Tr_min) & Data.Correlation.Rrmin(i) > 0.5
+            Pars.Tr_min = [Pars.Tr_min; p.Tr_min];
+        end
+        if istable(p.Tr_max) & Data.Correlation.Rrmax(i) > 0.5
+            Pars.Tr_max = [Pars.Tr_max; p.Tr_max];
+        end
+        if istable(p.Tl_min) & Data.Correlation.Rlmin(i) > 0.5
+            Pars.Tl_min = [Pars.Tl_min; p.Tl_min];
+        end
+        if istable(p.Tl_max) & Data.Correlation.Rlmax(i) > 0.5
+            Pars.Tl_max = [Pars.Tl_max; p.Tl_max];
+        end
+        
+        if ~isempty(p.Mr_min)  & Data.Correlation.Rrmin(i) > 0.5
+            Pars.Mr_min = [Pars.Mr_min; p.Mr_min];
+        end
+        if ~isempty(p.Mr_max)  & Data.Correlation.Rrmax(i) > 0.5
+            Pars.Mr_max = [Pars.Mr_max; p.Mr_max];
+        end
+        if~isempty(p.Ml_min) & Data.Correlation.Rlmin(i) > 0.5
+            Pars.Ml_min = [Pars.Ml_min; p.Ml_min];
+        end
+        if~isempty(p.Ml_max)  & Data.Correlation.Rlmax(i) > 0.5
+            Pars.Ml_max = [Pars.Ml_max; p.Ml_max];
+        end
     end
-    
+   
+   waitbar(i/size(comp_files,1))
+end
+
+close(h)
+
+
+names = {'r_min','r_max','l_min','l_max'};
+minAmplitude = 0;
+maxAmplitude = 60;
+maxDuration = 60;
+for i = 1:4
+    eval(sprintf('I_ret = find(~isnan(Pars.T%s.Match)  & Pars.T%s.Type == 1 & Pars.T%s.Amplitude > minAmplitude & Pars.T%s.Amplitude < maxAmplitude & Pars.T%s.MAmplitude > minAmplitude & Pars.T%s.MAmplitude < maxAmplitude & Pars.T%s.Duration < maxDuration & Pars.T%s.MDuration < maxDuration);', names{i},names{i},names{i}, names{i}, names{i}, names{i},names{i},names{i}))
+    eval(sprintf('I_pro = find(~isnan(Pars.T%s.Match)  & Pars.T%s.Type == 2 & Pars.T%s.Amplitude < -minAmplitude & Pars.T%s.Amplitude > -maxAmplitude & Pars.T%s.MAmplitude < -minAmplitude & Pars.T%s.MAmplitude > -maxAmplitude & Pars.T%s.Duration < maxDuration & Pars.T%s.MDuration < maxDuration);', names{i},names{i},names{i}, names{i}, names{i}, names{i},names{i},names{i}))
+
+    eval(sprintf('l_ret = table(Pars.T%s.Amplitude(I_ret), Pars.T%s.MAmplitude(I_ret), Pars.T%s.Duration(I_ret), Pars.T%s.MDuration(I_ret));',names{i},names{i}, names{i}, names{i}))
+    eval(sprintf('l_pro = table(Pars.T%s.Amplitude(I_pro), Pars.T%s.MAmplitude(I_pro), Pars.T%s.Duration(I_pro), Pars.T%s.MDuration(I_pro));',names{i},names{i}, names{i}, names{i}))
+
+    if i == 1
+        r_Pro = l_pro;
+        r_Ret = l_ret;
+    else
+        r_Pro = [r_Pro; l_pro];
+        r_Ret = [r_Ret; l_ret];
+    end
+
+end
+
+Data.Protraction_table = r_Pro;
+Data.Protraction_table.Properties.VariableNames = {'Tamplitude','Mamplitude','Tduration','Mduration'};
+Data.Retraction_table = r_Ret;
+Data.Retraction_table.Properties.VariableNames = {'Tamplitude','Mamplitude','Tduration','Mduration'};
+
+
+Amplitude_bins = 0:5:maxAmplitude;
+
+t = Data.Protraction_table;
+g = table(discretize(abs(t.Tamplitude),Amplitude_bins), discretize(abs(t.Mamplitude), Amplitude_bins),...
+    'VariableNames',{'Tamplitude','Mamplitude'});
+a = varfun(@numel, g,'GroupingVariables'...
+    ,{'Tamplitude','Mamplitude'});
+
+I = zeros(length(Amplitude_bins)-1, length(Amplitude_bins)-1);
+for i = 1:size(a, 1)
+    I(a.Mamplitude(i), a.Tamplitude(i)) = a.GroupCount(i);
+end
+Data.histImProA = I./max(max(I));
+b = polyfit(abs(t.Mamplitude), abs(t.Tamplitude),1);
+yfit = polyval(b,abs(t.Mamplitude));
+SSE = sum( (abs(t.Tamplitude) - mean(abs(t.Tamplitude))).^2 );
+SSTO = sum( (abs(t.Tamplitude) - yfit).^2);
+Data.histImProA_Rs = abs(1 - SSE/SSTO);
+
+
+
+
+
+
+
+t = Data.Retraction_table;
+g = table(discretize(abs(t.Tamplitude),Amplitude_bins), discretize(abs(t.Mamplitude),Amplitude_bins),...
+    'VariableNames',{'Tamplitude','Mamplitude'});
+a = varfun(@numel, g,'GroupingVariables'...
+    ,{'Tamplitude','Mamplitude'});
+
+I = zeros(length(Amplitude_bins)-1, length(Amplitude_bins)-1);
+for i = 1:size(a, 1)
+    I(a.Mamplitude(i), a.Tamplitude(i)) = a.GroupCount(i);
+end
+Data.histImRetA = I./max(max(I));
+b = polyfit(abs(t.Mamplitude), abs(t.Tamplitude),1);
+yfit = polyval(b,abs(t.Mamplitude));
+SSE = sum( (abs(t.Tamplitude) - mean(abs(t.Tamplitude))).^2 );
+SSTO = sum( (abs(t.Tamplitude) - yfit).^2);
+Data.histImRetA_Rs = abs(1 - SSE/SSTO);
+Data.Amplitude_bins = Amplitude_bins;
+
+
+
+Duration_bins = 0:5:maxDuration;
+
+t = Data.Protraction_table;
+g = table(discretize(abs(t.Tduration),Duration_bins), discretize(abs(t.Mduration),Duration_bins),...
+    'VariableNames',{'Tduration','Mduration'});
+a = varfun(@numel, g,'GroupingVariables'...
+    ,{'Tduration','Mduration'});
+
+I = zeros(length(Duration_bins)-1, length(Duration_bins)-1);
+for i = 1:size(a, 1)
+    I(a.Mduration(i), a.Tduration(i)) = a.GroupCount(i);
+end
+b = polyfit(t.Mduration, t.Tduration, 1);
+yfit = polyval(b, t.Mduration);
+SSE = sum( (t.Tduration - mean(t.Tduration)).^2 );
+SSTO = sum( (t.Tduration - yfit).^2);
+Data.histImProD_Rs = abs(1- SSE/SSTO);
+Data.histImProD =  I./max(max(I));
+
+t = Data.Retraction_table;
+g = table(discretize(abs(t.Tduration),Duration_bins), discretize(abs(t.Mduration), Duration_bins),...
+    'VariableNames',{'Tduration','Mduration'});
+a = varfun(@numel, g,'GroupingVariables'...
+    ,{'Tduration','Mduration'});
+
+I = zeros(length(Duration_bins)-1, length(Duration_bins)-1);
+for i = 1:size(a, 1)
+    I(a.Mduration(i), a.Tduration(i)) = a.GroupCount(i);
+end
+Data.histImRetD =  I./max(max(I));
+b = polyfit(t.Mduration, t.Tduration, 1);
+yfit = polyval(b, t.Mduration);
+SSE = sum( (t.Tduration - mean(t.Tduration)).^2 );
+SSTO = sum( (t.Tduration - yfit).^2);
+Data.histImRetD_Rs = abs(1- SSE/SSTO);
+Data.Duration_bins = Duration_bins;
+
+
+
+Speed_bins = 0:100:2000;
+TrackerSpeedPro = 1000*abs(Data.Protraction_table.Tamplitude)./ Data.Protraction_table.Tduration;
+ManualSpeedPro = 1000*abs(Data.Protraction_table.Mamplitude)./Data.Protraction_table.Mduration;
+g = table(discretize(TrackerSpeedPro,Speed_bins), discretize(ManualSpeedPro, Speed_bins),...
+    'VariableNames',{'Tspeed','Mspeed'});
+Speed_bins = 0:100:2000;
+a = varfun(@numel, g,'GroupingVariables'...
+    ,{'Tspeed','Mspeed'});
+
+I = zeros(length(Speed_bins)-1, length(Speed_bins)-1);
+for i = 1:size(a, 1)
+    I(a.Mspeed(i), a.Tspeed(i)) = a.GroupCount(i);
+end
+b = polyfit(ManualSpeedPro ,TrackerSpeedPro, 1);
+yfit = polyval(b, ManualSpeedPro);
+SSE = sum( (TrackerSpeedPro - mean(TrackerSpeedPro)).^2);
+SSTO = sum( (TrackerSpeedPro - yfit).^2);
+Data.histImProS_Rs = abs(1-SSE/SSTO);
+Data.histImProS = I./max(max(I));
+
+
+TrackerSpeedRet = 1000*abs(Data.Retraction_table.Tamplitude)./ Data.Retraction_table.Tduration;
+ManualSpeedRet = 1000*abs(Data.Retraction_table.Mamplitude)./Data.Retraction_table.Mduration;
+g = table(discretize(TrackerSpeedRet,Speed_bins), discretize(ManualSpeedRet, Speed_bins),...
+    'VariableNames',{'Tspeed','Mspeed'});
+Speed_bins = 0:100:2000;
+a = varfun(@numel, g,'GroupingVariables'...
+    ,{'Tspeed','Mspeed'});
+
+I = zeros(length(Speed_bins)-1, length(Speed_bins)-1);
+for i = 1:size(a, 1)
+    I(a.Mspeed(i), a.Tspeed(i)) = a.GroupCount(i);
+end
+Data.histImRetS =  I./max(max(I));
+b = polyfit(ManualSpeedRet ,TrackerSpeedRet, 1);
+yfit = polyval(b, ManualSpeedRet);
+SSE = sum( (TrackerSpeedRet - mean(TrackerSpeedRet)).^2);
+SSTO = sum( (TrackerSpeedRet - yfit).^2);
+Data.histImRetS_Rs = abs(1-SSE/SSTO);
+Data.Speed_bins = Speed_bins;
+
+%% AX 11 - Touch Data
+
+h = waitbar(0, 'doing touch');
+
+
+
+for i =  1:size(comp_files,1)
+     load(fullfile(comp_files(i).folder, comp_files(i).name))
+     
+     TrackerTouch = Annotations.Tracker.TouchFiltered;
+     
+     nframes = size(Annotations.Tracker.Touch, 2);
+     TTouch = [];
+     MTouch = [];
+
+     for j = 1:nframes  
+         
+         if j <= size(Annotations.Manual.Touch.pt,2) && ...
+             ~isempty(Annotations.Manual.RawNotations{j}) && ...
+                 ~isempty(Annotations.Tracker.Traces_clean{j})
+             
+            TTouch(end+1) = numel(find(TrackerTouch{j}));
+            MTouch(end+1) = size(Annotations.Manual.Touch.pt{j},1);
+            
+       
+         end
+         
+         
+      
+     end
+   
+     
+     if i == 1
+         TOUCH = table(TTouch', MTouch','VariableNames',{'Tracker','Manual'});
+     else
+         looptouch = table(TTouch', MTouch','VariableNames',{'Tracker','Manual'});
+         TOUCH  = [TOUCH;looptouch];
+     end
     
     waitbar(i/size(comp_files,1))
     
@@ -343,272 +539,15 @@ end
 close(h)
 
 
-%%
 
-% Filter noise data
-MAXAMP = 180;
-MAXDUR = 200;
-MAXSPEED = 2500;
-
-names = {'LeftMinCon','LeftMaxCon','RightMinCon','RightMaxCon'};
-
-for i = 1:length(names)
-    eval(...
-    sprintf(['idx = find('...
-        '%s.Man_Con_a < MAXAMP & ' ...
-        '%s.Man_Con_a > 0 &'...
-        '%s.Man_Con_d < MAXDUR & ' ...
-        '%s.Man_Con_d > 0 &'...
-        '%s.Man_Con_s < MAXSPEED & '...
-        '%s.Trck_Con_s > 0 & '...
-        '%s.Trck_Con_a < MAXAMP & ' ...
-        '%s.Trck_Con_a > 0 & '...
-        '%s.Trck_Con_d < MAXDUR & ' ...
-        '%s.Trck_Con_d > 0 &'...
-        '%s.Trck_Con_s < MAXSPEED & '...
-        '%s.Trck_Con_s > 0' ...
-        ');'],names{i},names{i},names{i},...
-        names{i},names{i},names{i},...
-        names{i},names{i},names{i},...
-        names{i},names{i},names{i})...
-        )    
-    eval(sprintf('%s = %s(idx,:);',names{i},names{i}))
-end
-
-names = {'LeftMinPro','LeftMaxPro','RightMinPro','RightMaxPro'};
-for i = 1:length(names)
-    eval(...
-    sprintf(['idx = find('...
-        '%s.Man_pro_a > -MAXAMP & ' ...
-        '%s.Man_pro_a < 0 &'...
-        '%s.Man_pro_d < MAXDUR & ' ...
-        '%s.Man_pro_d > 0 &'...
-        '%s.Man_pro_s > -MAXSPEED & '...
-        '%s.Trck_pro_s < 0 & '...
-        '%s.Trck_pro_a > -MAXAMP & ' ...
-        '%s.Trck_pro_a < 0 & '...
-        '%s.Trck_pro_d < MAXDUR & ' ...
-        '%s.Trck_pro_d > 0 &'...
-        '%s.Trck_pro_s > -MAXSPEED & '...
-        '%s.Trck_pro_s < 0' ...
-        ');'],names{i},names{i},names{i},...
-        names{i},names{i},names{i},...
-        names{i},names{i},names{i},...
-        names{i},names{i},names{i})...
-        )    
-    eval(sprintf('%s = %s(idx,:);',names{i},names{i}))
-end        
-
-Data.LeftMinCon = LeftMinCon;
-Data.LeftMaxCon = LeftMaxCon;
-Data.RightMinCon = RightMinCon;
-Data.RightMaxCon = RightMaxCon;
-Data.LeftMinPro = LeftMinPro;
-Data.LeftMaxPro = LeftMaxPro;
-Data.RightMinPro = RightMinPro;
-Data.RightMaxPro = RightMaxPro;
-
-
-
-%%
-maxval =80;
-nbins = 0.3*maxval+1;
-bins = linspace(0,maxval,nbins);
-
-BIN_AMPLITUDE_PRO = zeros(length(bins)-1, length(bins)-1);
-for i = 1:length(bins)-1
-    for j = 1:length(bins)-1
-        BIN_AMPLITUDE_PRO(i,j) = numel(find( abs(LeftMaxPro.Man_pro_a) >= bins(j) & abs(LeftMaxPro.Man_pro_a) < bins(j+1) & ...
-            abs(LeftMaxPro.Trck_pro_a) >= bins(i) & abs(LeftMaxPro.Trck_pro_a) < bins(i+1))) + BIN_AMPLITUDE_PRO(i,j);
-        BIN_AMPLITUDE_PRO(i,j) = numel(find( abs(LeftMinPro.Man_pro_a >= bins(j)) & abs(LeftMinPro.Man_pro_a) < bins(j+1) & ...
-            abs(LeftMinPro.Trck_pro_a) >= bins(i) & abs(LeftMinPro.Trck_pro_a) < bins(i+1))) + BIN_AMPLITUDE_PRO(i,j);
-        BIN_AMPLITUDE_PRO(i,j) = numel(find( abs(RightMaxPro.Man_pro_a) >= bins(j) & abs(RightMaxPro.Man_pro_a) < bins(j+1) & ...
-            abs(RightMaxPro.Trck_pro_a) >= bins(i) & abs(RightMaxPro.Trck_pro_a) < bins(i+1))) + BIN_AMPLITUDE_PRO(i,j);
-        BIN_AMPLITUDE_PRO(i,j) = numel(find( abs(RightMinPro.Man_pro_a) >= bins(j) & abs(RightMinPro.Man_pro_a) < bins(j+1) & ...
-            abs(RightMinPro.Trck_pro_a) >= bins(i) & abs(RightMinPro.Trck_pro_a) < bins(i+1))) + BIN_AMPLITUDE_PRO(i,j);
-
-     end
-end
-Data.BIN_AMPLITUDE_PRO = BIN_AMPLITUDE_PRO./max(max(BIN_AMPLITUDE_PRO));
-
-
-BIN_AMPLITUDE_CON = zeros(length(bins)-1, length(bins)-1);
-for i = 1:length(bins)-1
-    for j = 1:length(bins)-1
-        
-        BIN_AMPLITUDE_CON(i,j) = numel(find( abs(LeftMaxCon.Man_Con_a) >= bins(j) & abs(LeftMaxCon.Man_Con_a) < bins(j+1) & ...
-            abs(LeftMaxCon.Trck_Con_a) >= bins(i) & abs(LeftMaxCon.Trck_Con_a) < bins(i+1))) + BIN_AMPLITUDE_CON(i,j);
-        BIN_AMPLITUDE_CON(i,j) = numel(find( abs(LeftMinCon.Man_Con_a >= bins(j)) & abs(LeftMinCon.Man_Con_a) < bins(j+1) & ...
-            abs(LeftMinCon.Trck_Con_a) >= bins(i) & abs(LeftMinCon.Trck_Con_a) < bins(i+1))) + BIN_AMPLITUDE_CON(i,j);
-        BIN_AMPLITUDE_CON(i,j) = numel(find( abs(RightMaxCon.Man_Con_a) >= bins(j) & abs(RightMaxCon.Man_Con_a) < bins(j+1) & ...
-            abs(RightMaxCon.Trck_Con_a) >= bins(i) & abs(RightMaxCon.Trck_Con_a) < bins(i+1))) + BIN_AMPLITUDE_CON(i,j);
-        BIN_AMPLITUDE_CON(i,j) = numel(find( abs(RightMinCon.Man_Con_a) >= bins(j) & abs(RightMinCon.Man_Con_a) < bins(j+1) & ...
-            abs(RightMinCon.Trck_Con_a) >= bins(i) &abs( RightMinCon.Trck_Con_a) < bins(i+1))) + BIN_AMPLITUDE_CON(i,j);
-     end
-end
-Data.BIN_AMPLITUDE_CON = BIN_AMPLITUDE_CON./max(max(BIN_AMPLITUDE_CON));
-
-
-
-stepsize = nbins/4;
-Data.BIN_AMPLITUDExtickax  = [0:stepsize:size(BIN_AMPLITUDE_CON,1)+1];
-Data.BIN_AMPLITUDExtickax(1) = 1;
-Data.BIN_AMPLITUDExtickax(end) = Data.BIN_AMPLITUDExtickax(end)-1;
-stepsize = 20;
-Data.BIN_AMPLITUDExticklabels = 0:stepsize:maxval;
-
-%%
-maxval = 80;
-nbins = 0.3*maxval+1;
-bins = linspace(0,maxval,nbins);
-
-BIN_DURATION_PRO = zeros(length(bins)-1, length(bins)-1);
-for i = 1:length(bins)-1
-    for j = 1:length(bins)-1
-        BIN_DURATION_PRO(i,j) = numel(find( LeftMaxPro.Man_pro_d >= bins(j) & LeftMaxPro.Man_pro_d < bins(j+1) & ...
-            LeftMaxPro.Trck_pro_d >= bins(i) & LeftMaxPro.Trck_pro_d < bins(i+1))) + BIN_DURATION_PRO(i,j);
-        BIN_DURATION_PRO(i,j) = numel(find( LeftMinPro.Man_pro_d >= bins(j) & LeftMinPro.Man_pro_d < bins(j+1) & ...
-            LeftMinPro.Trck_pro_d >= bins(i) & LeftMinPro.Trck_pro_d < bins(i+1))) + BIN_DURATION_PRO(i,j);
-        BIN_DURATION_PRO(i,j) = numel(find( RightMaxPro.Man_pro_d >= bins(j) & RightMaxPro.Man_pro_d < bins(j+1) & ...
-            RightMaxPro.Trck_pro_d >= bins(i) & RightMaxPro.Trck_pro_d < bins(i+1))) + BIN_DURATION_PRO(i,j);
-        BIN_DURATION_PRO(i,j) = numel(find( RightMinPro.Man_pro_d >= bins(j) & RightMinPro.Man_pro_d < bins(j+1) & ...
-            RightMinPro.Trck_pro_d >= bins(i) & RightMinPro.Trck_pro_d < bins(i+1))) + BIN_DURATION_PRO(i,j);        
-
-    end
-end
-
-Data.BIN_DURATION_PRO = BIN_DURATION_PRO./max(max(BIN_DURATION_PRO));
-
-
-
-BIN_DURATION_CON = zeros(length(bins)-1, length(bins)-1);
-for i = 1:length(bins)-1
-    for j = 1:length(bins)-1
-        
-        BIN_DURATION_CON(i,j) = numel(find( LeftMaxCon.Man_Con_d >= bins(j) & LeftMaxCon.Man_Con_d < bins(j+1) & ...
-            LeftMaxCon.Trck_Con_d >= bins(i) & LeftMaxCon.Trck_Con_d < bins(i+1))) + BIN_DURATION_CON(i,j);
-        BIN_DURATION_CON(i,j) = numel(find( LeftMinCon.Man_Con_d >= bins(j) & LeftMinCon.Man_Con_d < bins(j+1) & ...
-            LeftMinCon.Trck_Con_d >= bins(i) & LeftMinCon.Trck_Con_d < bins(i+1))) + BIN_DURATION_CON(i,j);
-        BIN_DURATION_CON(i,j) = numel(find( RightMaxCon.Man_Con_d >= bins(j) & RightMaxCon.Man_Con_d < bins(j+1) & ...
-            RightMaxCon.Trck_Con_d >= bins(i) & RightMaxCon.Trck_Con_d < bins(i+1))) + BIN_DURATION_CON(i,j);
-        BIN_DURATION_CON(i,j) = numel(find( RightMinCon.Man_Con_d >= bins(j) & RightMinCon.Man_Con_d < bins(j+1) & ...
-            RightMinCon.Trck_Con_d >= bins(i) & RightMinCon.Trck_Con_d < bins(i+1))) + BIN_DURATION_CON(i,j);
-    end
-end
-
-Data.BIN_DURATION_CON = BIN_DURATION_CON./max(max(BIN_DURATION_CON));
-
-
-stepsize = nbins/4;
-xtickax  = 0:stepsize:size(BIN_DURATION_CON,1)+1;
-xtickax(1) = 1;
-xtickax(end) = xtickax(end)-1;
-Data.BIN_DURATIONxtickax = xtickax;
-stepsize = 20;
-Data.BIN_DURATIONxticklabels = 0:stepsize:maxval;
-
-
-
-
-
-
-
-
-
-
-
-%%
-maxval = 2000;
-
-bins = linspace(0,maxval,nbins);
-
-BIN_SPEED_PRO = zeros(length(bins)-1, length(bins)-1);
-for i = 1:length(bins)-1
-    for j = 1:length(bins)-1
-        
-        BIN_SPEED_PRO(i,j) = numel(find( abs(LeftMaxPro.Man_pro_s >= bins(j)) &  abs(LeftMaxPro.Man_pro_s) < bins(j+1) & ...
-             abs(LeftMaxPro.Trck_pro_s) >= bins(i) &  abs(LeftMaxPro.Trck_pro_s) < bins(i+1))) + BIN_SPEED_PRO(i,j);
-        BIN_SPEED_PRO(i,j) = numel(find(  abs(LeftMinPro.Man_pro_s) >= bins(j) & abs(LeftMinPro.Man_pro_s) < bins(j+1) & ...
-            abs(LeftMinPro.Trck_pro_s) >= bins(i) & abs(LeftMinPro.Trck_pro_s) < bins(i+1))) + BIN_SPEED_PRO(i,j);
-        BIN_SPEED_PRO(i,j) = numel(find( abs(RightMaxPro.Man_pro_s) >= bins(j) & abs(RightMaxPro.Man_pro_s) < bins(j+1) & ...
-            abs(RightMaxPro.Trck_pro_s) >= bins(i) & abs(RightMaxPro.Trck_pro_s) < bins(i+1))) + BIN_SPEED_PRO(i,j);
-        BIN_SPEED_PRO(i,j) = numel(find( abs(RightMinPro.Man_pro_s) >= bins(j) & abs(RightMinPro.Man_pro_s) < bins(j+1) & ...
-            abs(RightMinPro.Trck_pro_s) >= bins(i) & abs(RightMinPro.Trck_pro_s) < bins(i+1))) + BIN_SPEED_PRO(i,j);
-    end
-end
-Data.BIN_SPEED_PRO = BIN_SPEED_PRO./max(max(BIN_SPEED_PRO));
-
-
-BIN_SPEED_CON = zeros(length(bins)-1, length(bins)-1);
-for i = 1:length(bins)-1
-    for j = 1:length(bins)-1
-        
-       BIN_SPEED_CON(i,j) = numel(find( abs(LeftMaxCon.Man_Con_s >= bins(j)) &  abs(LeftMaxCon.Man_Con_s) < bins(j+1) & ...
-             abs(LeftMaxCon.Trck_Con_s) >= bins(i) &  abs(LeftMaxCon.Trck_Con_s) < bins(i+1))) + BIN_SPEED_CON(i,j);
-        BIN_SPEED_CON(i,j) = numel(find(  abs(LeftMinCon.Man_Con_s) >= bins(j) & abs( LeftMinCon.Man_Con_s) < bins(j+1) & ...
-            abs( LeftMinCon.Trck_Con_s) >= bins(i) & abs( LeftMinCon.Trck_Con_s) < bins(i+1))) + BIN_SPEED_CON(i,j);
-        BIN_SPEED_CON(i,j) = numel(find(  abs(RightMaxCon.Man_Con_s) >= bins(j) &  abs(RightMaxCon.Man_Con_s) < bins(j+1) & ...
-             abs(RightMaxCon.Trck_Con_s) >= bins(i) &  abs(RightMaxCon.Trck_Con_s) < bins(i+1))) + BIN_SPEED_CON(i,j);
-        BIN_SPEED_CON(i,j) = numel(find(  abs(RightMinCon.Man_Con_s) >= bins(j) &  abs(RightMinCon.Man_Con_s) < bins(j+1) & ...
-             abs(RightMinCon.Trck_Con_s) >= bins(i) &  abs(RightMinCon.Trck_Con_s) < bins(i+1))) + BIN_SPEED_CON(i,j);
-    end
-end
-Data.BIN_SPEED_CON = BIN_SPEED_CON./max(max(BIN_SPEED_CON));
-
-
-stepsize = nbins/2;
-xtickax  = 0:stepsize:size(BIN_SPEED_CON,1)+1;
-xtickax(1) = 1;
-xtickax(end) = xtickax(end)-1;
-Data.BIN_SPEEDxtickax = xtickax;
-stepsize = 1000;
-Data.BIN_SPEEDxticklabels = 0:stepsize:maxval;
-
-
-%% AX 11 - Touch Data
-
-h = waitbar(0, 'doing touch');
-
-for i =  1:size(comp_files,1)
-     load(fullfile(comp_files(i).folder, comp_files(i).name))
-     
-     
-     nframes = size(Annotations.Tracker.Touch, 2);
-     TTouch = [];
-     TTouch(1:nframes) = 0;
-     MTouch = [];
-     MTouch(1:nframes) = 0;
-     MTouch_auto = [];
-     MTouch_auto(1:nframes) = 0;
-     for j = 1:nframes        
-        TTouch(j) = numel(find(Annotations.Tracker.Touch{j})); 
-        if j <= size(Annotations.Manual.Touch.pt,2)
-            MTouch(j) = size(Annotations.Manual.Touch.pt{j},1);
-        end
-        MTouch_auto(j) = numel(find(Annotations.Manual.Touch_auto{j}));         
-     end
-     
-     if i == 1
-         TOUCH = table(TTouch', MTouch', MTouch_auto','VariableNames',{'Tracker','Manual','ManualAuto'});
-     else
-         looptouch = table(TTouch', MTouch', MTouch_auto','VariableNames',{'Tracker','Manual','ManualAuto'});
-         TOUCH  = [TOUCH;looptouch];
-     end
-    
-    waitbar(i/37)
-    
-end
-close(h)
-
-
-
-idx = find( TOUCH.Tracker ~= 0 | TOUCH.Manual ~= 0);
-TOUCH = TOUCH(idx,:);
+I_ret = find( TOUCH.Tracker ~= 0 | TOUCH.Manual ~= 0);
+TOUCH = TOUCH(I_ret,:);
 Data.TOUCH = TOUCH;
 
 
-maxval = max([TOUCH.Tracker;TOUCH.Manual;TOUCH.ManualAuto]);
-nbins = maxval+1;
+%maxval = max([TOUCH.Tracker;TOUCH.Manual]);
+maxval = 8;
+nbins = maxval+1;TTouch
 
 TOUCHCOUNT = zeros(maxval+1,maxval+1);
 for i = 0:maxval
@@ -622,6 +561,14 @@ xtickax = 1:2:maxval+1;
 Data.TOUCHtickax = xtickax;
 Data.TOUCHticklabel = 0:2:maxval;
 
+
+b = polyfit(Data.TOUCH.Manual, Data.TOUCH.Tracker, 1);
+yfit = polyval(b, Data.TOUCH.Manual);
+SSE = sum( (Data.TOUCH.Tracker - mean(Data.TOUCH.Tracker)).^2);
+SSTO = sum( (Data.TOUCH.Tracker - yfit).^2);
+Data.touch_Rs = abs(1-SSE/SSTO);
+
+Data.touch_diff = Data.TOUCH.Tracker - Data.TOUCH.Manual;
 
 
 save(fullfile(Datapath,'Data_Figure_Par_Eval'),'Data')

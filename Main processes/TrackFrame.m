@@ -2,7 +2,6 @@ function TracesOut = TrackFrame(Settings, Output)
 %% Traces = TrackFrame(Settings, Objects)
 % Track raw traces in a frame using user defined traces
 TracesOut = {};
-
 Objects = Output.Objects;
 Edges = Output.Edges;
 
@@ -13,32 +12,52 @@ Edges = Output.Edges;
 % - Lowpass filtered from to estimate pixel value
 
 Frame = LoadFrame(Settings);
+Frame = im2double(Frame);
+Frame = imadjust(Frame, [],[], Settings.Gamma);
+
+
+if Settings.doGaussian
+    ng = Settings.Gaussian_kernel_size;
+    kfil = zeros(1, ng);
+    kfil(1:ceil(ng/2)) = 1:ceil(ng/2);
+    kfil(ceil(ng/2)+1:end) = max(kfil)-1:-1:1;
+    Kgaus = repmat(kfil,[ng, 1]) + repmat(kfil,[ng, 1])';
+    Kgaus = Kgaus./ sum(sum(Kgaus));
+    Frame = conv2(Frame, Kgaus, 'same');
+end
+
+
+
+Frame = adapthisteq(Frame, 'NBins',256,'NumTiles',[5 5]);
+minval = min(min(Frame));
+Frame = Frame - minval;
+Frame = Frame./max(max(Frame));
+
 
 SLN = zeros(size(Objects)); % Variable for silhouette (normal shape)
-SLN( Frame <= Settings.Silhouettethreshold ) = 1;
+SLN( Frame <= Settings.Shape_threshold ) = 1;
 SLN( Objects == 1 ) = 0;
 
 
 SLS = imerode(SLN, strel('diamond', 5)); % Small silhouette
-SLL = imdilate(SLS, strel('diamond', Settings.Dilationsize));
+SLL = imdilate(SLS, strel('diamond', Settings.Dilation));
 
-K = 5;
-L = 1;
+K = Settings.Trace_kernel_large;
+L = Settings.Trace_kernel_small;
 CHl = conv2(Frame, ones(K,K)./K^2, 'same'); % Low pass filter frame with large kernel
 CHs = conv2(Frame, ones(L,L)./L^2, 'same');  % Low pass filter frame with small kernel
 CH = zeros(size(Objects));
-CH(0.5*CHs./CHl < 0.485) = 1; % Matrix with potential valid pixels
+CH(0.5*CHs./CHl < Settings.Trace_threshold) = 1; % Matrix with potential valid pixels
 
 
 FrameHeight = size(Frame, 1);
 FrameWidth = size(Frame, 2);
 
-
 Frame(1,1) = 999; % Default 'dead' pixel, to refer to if tracking should
 % be interrupted.
 CH(Objects == 1) = 0;
 CH(Edges == 1) = 0.5;
-CH(SLL == 1) = 0;
+%CH(SLL == 1) = 0;
 CH(SLN == 1) = 0;
 
 
@@ -49,7 +68,7 @@ CH(SLN == 1) = 0;
 
 RoiInd = find(edge(SLL));
 
-if isempty(RoiInd); TraceOut = {}; return; end
+if isempty(RoiInd); TraceOut = {}; return; end %#ok<NASGU>
 clear RoiSub
 [RoiSub(:,1), RoiSub(:,2)] = ind2sub(size(Frame), RoiInd);
 RS2 = RoiSub;
@@ -89,11 +108,20 @@ SeedProfile = abs(SeedProfile-LP); % Subtract local background
 
 if isempty(SeedProfile); TracesOut = {}; return; end
 
-[~, SeedInd] = findpeaks(SeedProfile, 'MinPeakDistance',3);
-Seeds = RoiSub(SeedInd,:);
-N = Output.Nose(Settings.Current_frame,:);
-d = sqrt( sum(  (Seeds-N).^2,2 ));
-Seeds = Seeds( d <=150 , :);
+if Settings.FullRoi == 0
+    [~, SeedInd] =  findpeaks(SeedProfile, 'MinPeakDistance',3,'MinPeakProminence',Settings.Seed_threshold);
+    Seeds = RoiSub(SeedInd,:);
+elseif Settings.FullRoi == 1
+    Seeds = RoiSub(find(CH(RoiInd) == 1),:);
+end
+
+
+%
+if Settings.track_nose
+    N = Output.Nose(Settings.Current_frame,:);
+    d = sqrt( sum(  (Seeds-N).^2,2 ));
+    Seeds = Seeds( d <=200 , :);
+end
 
 
 
@@ -203,6 +231,7 @@ for i = 2:bufferSize
     end
     
     Iroi = Frame(RoiInd);
+    Iroi(CH(RoiInd) == 0) = NaN;
     if size(Seeds,1) == 1
         [~, PointSub] = min(Iroi);
         PointInd = PointSub;
@@ -308,6 +337,8 @@ for i = 2:bufferSize
             Traces(:, idx(j), i-n_delete:i) = 1;
         end
     end    
+    
+  
     
   
 

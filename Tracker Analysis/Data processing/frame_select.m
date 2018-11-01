@@ -22,7 +22,7 @@ function varargout = frame_select(varargin)
 
 % Edit the above text to modify the response to help frame_select
 
-% Last Modified by GUIDE v2.5 03-Sep-2018 18:21:53
+% Last Modified by GUIDE v2.5 26-Oct-2018 21:02:39
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -59,16 +59,6 @@ else
     
     % Overwrite default settings with settings from previous session
     load('Settings\Settings.mat')
-    ot = Settings.object_threshold;
-    dl = Settings.Dilationsize;
-    ort = Settings.Origin_threshold;
-    tt = Settings.trace_threshold;
-    
-    makeSettings;
-    Settings.object_threshold = ot;
-    Settings.Dilationsze = dl;
-    Settings.Origin_threshold = ort;
-    Settings.trace_threshold = tt;
 end
 
 PathName = uigetdir('Select video parent directory');
@@ -77,6 +67,8 @@ handles.Settings = Settings;
 
 handles.vid_files = scanfiles(PathName, Settings.video_extension, 10, Settings.format);
 handles.PathName = PathName;
+handles.default_dir= 1;
+set(handles.checkbox2, 'Value', 1);
 
 if exist(fullfile(PathName,'Selected_frames.mat'))
     DataIn = load(fullfile(PathName, 'Selected_frames.mat'));
@@ -137,6 +129,9 @@ while 1
     handles.Settings.Video_width = handles.metadata.Data.Resolution(1);
     handles.Settings.Video_heigth = handles.metadata.Data.Resolution(2);
     handles.Settings.NFrames = handles.metadata.Data.NFrames;
+    handles.Current_direction = handles.default_dir;
+    updateBoxes(handles);
+    
     guidata(hObject, handles)
     Reset(hObject, handles, 'init');    
     
@@ -155,6 +150,33 @@ saveResults(handles.PathName, handles.Output)
 
 varargout{1} = handles.output;
 close(handles.figure1)
+
+function updateBoxes(handles)
+if handles.Current_direction == 1
+    set(handles.checkbox2, 'Value', 1)
+else
+    set(handles.checkbox2, 'Value', 0)
+end
+
+if handles.Current_direction == 2
+    set(handles.checkbox3, 'Value', 1)
+else
+    set(handles.checkbox3, 'Value', 0)
+end
+
+if handles.Current_direction == 3
+    set(handles.checkbox4, 'Value', 1)
+else
+    set(handles.checkbox4, 'Value', 0)
+end
+
+if handles.Current_direction == 4
+    set(handles.checkbox5, 'Value', 1)
+else
+    set(handles.checkbox5, 'Value', 0)
+end
+
+
 
 function Reset(hObject, handles, state)
 handles.Select.start = [];
@@ -179,10 +201,13 @@ if isfield(handles, 'Output') & size(handles.Output,2) > handles.Settings.file_i
         handles.pairs{i} = pairs{i};
     end
     
+    handles.Current_direction = handles.Output.Direction;
+    
 
 end
 
 UpdateBar(handles)
+updateBoxes(handles)
 
 
 guidata(hObject, handles)
@@ -296,6 +321,7 @@ id = handles.Settings.file_index;
 handles.Output(id).Video = handles.Settings.Vid_file;
 handles.Output(id).Pairs = handles.pairs;
 handles.Output(id).frames_to_track = zeros(1, handles.Settings.NFrames);
+handles.Output(id).Direction  = handles.Current_direction;
 for i = 1:size(handles.pairs,2)
     handles.Output(id).frames_to_track(...
         handles.pairs{i}(1):handles.pairs{i}(2)) = 1;
@@ -314,6 +340,7 @@ id = handles.Settings.file_index;
 handles.Output(id).Video = handles.Settings.Vid_file;
 handles.Output(id).Pairs = handles.pairs;
 handles.Output(id).frames_to_track = zeros(1, handles.Settings.NFrames);
+handles.Output(id).Direction = handles.Current_direction;
 for i = 1:size(handles.pairs,2)
     handles.Output(id).frames_to_track(...
         handles.pairs{i}(1):handles.pairs{i}(2)) = 1;
@@ -426,3 +453,56 @@ function disp_names_CreateFcn(hObject, ~, ~)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in checkbox2.
+function checkbox2_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if get(hObject,'Value') == 1
+    handles.Current_direction = 1;
+    updateBoxes(handles);
+    guidata(hObject, handles)
+end
+% Hint: get(hObject,'Value') returns toggle state of checkbox2
+
+
+% --- Executes on button press in checkbox3.
+function checkbox3_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if get(hObject,'Value') == 1
+    handles.Current_direction = 2;
+    updateBoxes(handles);
+    guidata(hObject, handles);
+end
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox3
+
+
+% --- Executes on button press in checkbox4.
+function checkbox4_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if get(hObject,'Value') == 1
+    handles.Current_direction = 3;
+    updateBoxes(handles);
+    guidata(hObject, handles);
+end
+% Hint: get(hObject,'Value') returns toggle state of checkbox4
+
+
+% --- Executes on button press in checkbox5.
+function checkbox5_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if get(hObject,'Value') == 1
+    handles.Current_direction = 4;
+    updateBoxes(handles);
+    guidata(hObject, handles);
+end
+% Hint: get(hObject,'Value') returns toggle state of checkbox5

@@ -5,41 +5,6 @@ Video = Settings.Video;
 Width = Settings.Video_width;
 Heigth = Settings.Video_heigth;
 framenr = Settings.Current_frame;
-%%
-
-
-%{
-if ~strcmp(filetype,'.dat')
-    frame = read(Video,framenr);
-    frame = im2double(frame(:,:,1));
-    frame = (frame - min(min(frame))) ./ max(max(frame));
- 
-    h = fspecial('gaussian',10);
-    frame = imfilter(frame,h);
-    h = fspecial('laplacian');
-    f = imfilter(frame,h);
-    frame = frame - f;
-else
-      
-    
-    % In the case of .dat files, use hardcoded resolution  
-    f = fopen(Video,'r');
-    fWidth = 512;
-    fHeight = 640;
-    fdim = [fWidth, fHeight];
-    fseek(f,(framenr-1)*fdim(1)*fdim(2),'bof');
-    frame = fread(f,fdim,'*uint8');
-    fclose(f);
-    frame = im2double(frame);
-    frame = (frame - min(min(frame))) ./ max(max(frame));
-    h = fspecial('gaussian',10);
-    frame = imfilter(frame,h);
-    h = fspecial('laplacian');
-    f = imfilter(frame,h);
-    frame = frame - f;
-
-end
-%}
 
 
 %%
@@ -53,9 +18,9 @@ switch(extension)
         f = fopen(Video,'r');
         fdim = [Width, Heigth];
         fseek(f,(framenr-1)*fdim(1)*fdim(2),'bof');
-        frame = fread(f,fdim,'*uint8');
+        frame = im2double(fread(f,fdim,'*uint8'));
         fclose(f);
-        frame = im2double(frame);
+        %frame = im2double(frame);
         
         
     case '.mat'
@@ -79,10 +44,4 @@ switch(extension)
         end
 end
 
-frame = (frame - min(min(frame))) ./ max(max(frame));
-h = fspecial('gaussian',10);
-frame = imfilter(frame,h);
-h = fspecial('laplacian');
-f = imfilter(frame,h);
-frame = frame-f;
 

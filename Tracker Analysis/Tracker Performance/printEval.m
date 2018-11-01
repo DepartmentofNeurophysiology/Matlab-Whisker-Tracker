@@ -6,7 +6,7 @@ function Evaluation = printEval(varargin)
 %               video)
 p = inputParser;
 p.CaseSensitive = 0;
-defaultPath = 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance\Evaluation';
+defaultPath = 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance';
 defaultVerbose = 0;
 
 

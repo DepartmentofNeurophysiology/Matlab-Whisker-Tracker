@@ -38,13 +38,13 @@ end
 
 [R,P] = corrcoef(T(IDX), M(IDX));
 
-Tpeak = Tpeak(ismember(Tpeak, IDX));
-Mpeak = Mpeak(ismember(Mpeak, IDX));
-
-
-dpeaks = abs(Mpeak' - Tpeak);
-res = mean(min(dpeaks, [] ,2));
-miss = length(Mpeak) - length(Tpeak);
+% Tpeak = Tpeak(ismember(Tpeak, IDX));
+% Mpeak = Mpeak(ismember(Mpeak, IDX));
+% 
+% 
+% dpeaks = abs(Mpeak' - Tpeak);
+% res = mean(min(dpeaks, [] ,2));
+% miss = length(Mpeak) - length(Tpeak);
 
 % if miss > 4
 %     keyboard
@@ -80,6 +80,6 @@ miss = length(Mpeak) - length(Tpeak);
 
 output.R = R(1,2);
 output.P = P(1,2);
-output.res = res;
-output.miss = miss;
-output.data = 'available';
+% output.res = res;
+% output.miss = miss;
+% output.data = 'available';
