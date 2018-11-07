@@ -41,7 +41,7 @@ The MWT was build and tested in MATLAB 2016a and 2017a and requires the 'image p
  
 <p align="center">
 <img  src="https://github.com/DepartmentofNeurophysiology/Matlab-Whisker-Tracker/wiki/Images/ParameterSetup.png"
-      width=550/>
+      width=700/>
 </p>
  
  ### Video tracking
