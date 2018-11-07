@@ -40,7 +40,7 @@ The MWT was build and tested in MATLAB 2016a and 2017a and requires the 'image p
  Further check boxes can be used to change displayed data. Use the save button to save data, and the quit button to exit the GUI. The presented results in the ParameterSetup are the same output as from the full tracking algorithm.
  
 <p align="center">
-<img  src="https://github.com/DepartmentofNeurophysiology/Matlab-Whisker-Tracker/wiki/Images/ParameterSetup.png"
+<img  src="https://github.com/DepartmentofNeurophysiology/Matlab-Whisker-Tracker/wiki/Images/BatS1.png"
       width=550/>
 </p>
  
