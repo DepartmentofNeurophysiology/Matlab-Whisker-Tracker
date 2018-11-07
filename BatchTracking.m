@@ -80,8 +80,8 @@ for i = 1:size(Files,1)
                 
                 % Track frame
                 Settings.Current_frame = ii;
-                Output.Traces = TrackFrame(Settings, Output);
-                Traces{ii} = Output.Traces;
+               
+                [Traces{ii}, ~] = TrackFrame(Settings, Output);
                 
                 count = count+1;
                 
@@ -116,7 +116,7 @@ for i = 1:size(Files,1)
              
                 loopsettings = Settings;
                 loopsettings.Current_frame = frame_idx(ii);
-                TempTraces{ii} = TrackFrame(loopsettings, Output);
+                [TempTraces{ii}, ~] = TrackFrame(loopsettings, Output);
                 ppm.increment();
             end
             ppm.delete();
@@ -133,11 +133,13 @@ for i = 1:size(Files,1)
         Output.Traces = Traces;
         
         Settings.ExportName = [Settings.Video(1:end-4) '_Annotations_Tracker.mat'];
+        
         % Store tracking resuts
         save( Settings.ExportName,'Output','Settings')
         
         compiledata('file',Settings.ExportName,'data',{'Tracker'},'overwrite',1)
-        
+%         PRINT_VIDEO('dPath',PathName,'FileName',Settings.FileName(1:end-4),...
+%             'dTtouch',1,'dTclean',1,'FrameSelect','annotated','dNose',1,'dExp',1)
         
     catch
         

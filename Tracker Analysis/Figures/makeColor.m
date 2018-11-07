@@ -79,6 +79,11 @@ colors.Trace2 = cmap(15,:);
 cmap =cbrewer('seq', 'Greys', 20);
 colors.Gray = cmap(10,:);
 
+cmap = cbrewer('div','PRGn',20);
+colors.Single = cmap(3,:);
+cmap = cbrewer('div','BrBG',20);
+colors.Multi = cmap(17,:);
+
 warning('on')
 
 

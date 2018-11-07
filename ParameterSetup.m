@@ -486,7 +486,6 @@ Settings = handles.Settings;
 show = handles.show;
 %% Panel 1
 Frame = im2double( abs(handles.FrameIn));
-
 Frame = imadjust(Frame, [],[], Settings.Gamma);
 
 if Settings.doGaussian
@@ -514,43 +513,12 @@ axis(handles.axes1, 'off')
 
 
 %% Panel 2
-Background = handles.sumFrames./100;
-
-Background = Background - min(min(Background));
-Background = Background ./ max(max(Background));
-
-
-Background(Background > Settings.Background_threshold) = 0;
-Objects = zeros(size(Background));
-
-Objects(Background > 0) = 1;
-KL = conv2(handles.meanFrames, ...
-    ones(Settings.Edges_kernel_large,Settings.Edges_kernel_large)./...
-    Settings.Edges_kernel_large,'same');
-KS = conv2(handles.meanFrames, ...
-    ones(Settings.Edges_kernel_small, Settings.Edges_kernel_small)./...
-    Settings.Edges_kernel_small^2, 'same');
-
-H = KS./KL;
-H = H-min(min(H));
-H = H./max(max(H));
-
-tax = 0:0.01:1;
-for i = 1:length(tax)
-    count(i) = numel(find(H < tax(i))); %#ok<AGROW>
-end
-[~, idx] = max(diff(count));
-edge_threshold = tax(idx)-0.02;
-
-Edges = zeros(size(Objects));
-
-%Edges(H < Settings.Edges_threshold) = 1;
-Edges(H < edge_threshold) = 1;
-
-
-Res = Costumbackground(Objects, Edges);
-Objects = Res.Objects;
-Edges = Res.Edges;
+Settings.sumFrames = handles.sumFrames;
+Settings.meanFrames = handles.meanFrames;
+Settings.state = 'setup';
+Results = getBackground(Settings);
+Objects = Results.Objects;
+Edges = Results.Edges;
 
 imagesc(handles.axes2, Frame);
 colormap(handles.axes2, 'gray')
@@ -573,386 +541,36 @@ if show.Edges
 end
 
 %% Panel 3
-SLN = zeros(size(Objects));
-SLN( handles.FrameIn <= Settings.Shape_threshold) = 1;
-SLN(Objects == 1) = 0;
-
-SLS = imerode(SLN, strel('diamond', 5)); % Small silhouette
-SLL = imdilate(SLS, strel('diamond', Settings.Dilation));
-%SLN = imdilate(SLN, strel('diamond', 1));
-
-Frame(1,1) = 999; % Default 'dead' pixel, to refer to if tracking should
-% be interrupted.
-
-K =  Settings.Trace_kernel_large;
-L =  Settings.Trace_kernel_small;
-CHl = conv2(Frame, ones(K,K)./K^2, 'same'); % Low pass filter frame with large kernel
-CHs = conv2(Frame, ones(L,L)./L^2, 'same');  % Low pass filter frame with small kernel
-CH = zeros(size(Objects));
-CH(0.5*CHs./CHl < Settings.Trace_threshold) = 1; % Matrix with potential valid pixels
-CH(Objects == 1) = 0;
-CH(Edges == 1) = 0.5;
-%CH(SLL == 1) = 0;
-CH(SLN == 1) = 0;
-
-
-% Find tracing seeds
-RoiInd = find(edge(SLL));
-if isempty(RoiInd); TraceOut = {}; return; end %#ok<NASGU>
-
-[RoiSub(:,1), RoiSub(:,2)] = ind2sub(size(Frame), RoiInd);
-RS2 = RoiSub;
-RS2(:,1) = RS2(:,1)+1;
-RoiSub = [RoiSub; RS2];
-todo = 1:size(RoiSub,1);
-todo(1) = NaN;
-did(1:length(RoiInd)) = NaN;
-did(1) = 1;
-TempVar = zeros(length(RoiInd), 2);
-TempVar(1,:) = RoiSub(1,:);
-
-for i = 2:size(RoiSub,1)
-    todo = todo(~isnan(todo));
-    dist = sqrt(sum( (RoiSub(todo,:) - TempVar(end,:)).^2, 2));
-    [~, idx] = min(dist);
-    TempVar(i,:) = RoiSub(todo(idx),:);
-    did(i) = todo(idx);
-    todo(idx) = NaN;
-end
-FrameHeight = size(Frame, 1);
-FrameWidth = size(Frame, 2);
-
-
-TempVar(TempVar(:,1) < 1, :) = NaN;
-TempVar(TempVar(:,1) > FrameHeight, :) = NaN;
-TempVar(TempVar(:,2) < 1, :) = NaN;
-TempVar(TempVar(:,2) > FrameWidth,:) = NaN;
-TempVar = TempVar(~isnan(TempVar(:,1)),:);
-
-RoiSub = TempVar;
-
-%scatter(RoiSub(:,2), RoiSub(:,1), 'm','filled')
-
-RoiInd = sub2ind(size(Frame), TempVar(:,1), TempVar(:,2));
-
-SeedProfile = double(Frame(RoiInd)); % Intensity profile over ROI
-
-LP = medfilt1(SeedProfile, 50);
-SeedProfile = abs(SeedProfile-LP); % Subtract local background
-
-
-
-if isempty(SeedProfile); TracesOut = {}; return; end %#ok<NASGU>
-
-handles.Settings.FullRoi = handles.show.FullRoi;
-if handles.Settings.FullRoi == 0
-    [~, SeedInd] = findpeaks(SeedProfile, 'MinPeakDistance',3,'MinPeakProminence',Settings.Seed_threshold);
-    Seeds = RoiSub(SeedInd,:);
-elseif handles.Settings.FullRoi == 1
-    %[~, SeedInd] = findpeaks(SeedProfile, 'MinPeakDistance',1,'Threshold',0);
-    
-    Seeds = RoiSub(find(CH(RoiInd)==1),:);
-end
-
+Data.Edges = Edges;
+Data.Objects = Objects;
+Settings.track_nose = 0;
+Settings.Current_frame = handles.State.current_frame;
+[TracesOut, Misc] = TrackFrame(Settings, Data);
 
 imagesc(handles.axes4, handles.FrameIn)
 colormap(handles.axes4, 'gray')
-img = imagesc(handles.axes5, SLL);
+img = imagesc(handles.axes5, Misc.SLL);
 colormap(handles.axes5, c.Snout)
-img.AlphaData = 0.5*SLL;
+img.AlphaData = 0.5*Misc.SLL;
 set(handles.axes4, 'Visible', 'off')
 set(handles.axes5, 'Visible','off')
 hold(handles.axes5, 'on')
-scatter(handles.axes5, RoiSub(:,2), RoiSub(:,1),5, ...
+scatter(handles.axes5, Misc.SeedRoi(:,2), Misc.SeedRoi(:,1),5, ...
     'MarkerFaceColor',c.Roi,'MarkerEdgeColor',c.Roi)
 
-scatter(handles.axes5, Seeds(:,2), Seeds(:,1), 5, ...
+scatter(handles.axes5, Misc.Seeds(:,2), Misc.Seeds(:,1), 5, ...
     'MarkerFaceColor',c.Trace,'MarkerEdgeColor',c.Trace)
 
 
 
 %% Panel 4
 % Track Traces
-bufferSize = 100; % max nr of points on a trace
 
-Traces = ones(2, size(Seeds,1), bufferSize);
-Traces(:, :, 1) = Seeds(:, 1:2)';
-H = -15:15;
-HH = -30:30;
-trace_finished = zeros(1, size(Seeds,1));
-trace_edges = zeros(1, size(Seeds,1));
-
-
-
-
-for i = 2:bufferSize
-    
-    if ~any(any(Traces(:,:, i-1) ~= 1)) % If no points were assigned in previous loop
-        break
-    end
-    
-    Theta = [];
-    if i == 2
-        ThetaRoi = repmat(1:20:360, [size(Seeds,1), 1]); % Roi bounded by angle range
-        %N = repmat(Centre,[size(Traces,2) 1]);
-        %vt = Traces(:,:,i-1) - N';
-        %ThetaRoi = atan2d(vt(2,:), vt(1,:))' + [-60:20:60];
-    else
-        vt = Traces(:,:,i-1)- Traces(:,:,i-2);
-        ThetaRoi = atan2d(vt(2,:), vt(1,:))' + H;
-        
-    end
-    
-    
-    
-    Theta(1,:,:) = [3*cosd(ThetaRoi)]; %#ok<*NBRAK> % ROI per previous point
-    Theta(2,:,:) = [3*sind(ThetaRoi)];
-    
-    LastPoints = repmat(Traces(:,:,i-1), [1 , 1, size(Theta, 3)]);
-    
-    RoiSub = round(LastPoints + Theta);
-    
-    % Remove indices outside of frame range
-    RoiSub(RoiSub < 1) = 1;
-    RoiSub(1,RoiSub(1,:,:) > FrameHeight) = 1;
-    RoiSub(2,RoiSub(2,:,:) > FrameWidth) = 1;
-    RoiInd = squeeze(sub2ind(size(Frame), RoiSub(1,:,:), RoiSub(2,:,:)));
-    
-    if i == 2
-        [a,b] = find(SLL(RoiInd));
-        %RoiInd(SLL(RoiInd) == 1) = 1;
-        for j = 1:size(RoiInd, 1)
-            
-            
-            idx = b(a == j);
-            if ~any(diff(idx)>1) & min(idx) > 2 & max(idx) < size(RoiInd,2)-1 %#ok<*AND2>
-                idx = [[-2 -1]'+idx(1); idx; [1 2]'+idx(end)];
-            elseif ~any(diff(idx) > 1) & min(idx) == 2 & max(idx) < size(RoiInd, 2) - 1
-                idx = [-1+idx(1); idx; [1 2]'+idx(end); size(RoiInd,2)];
-            elseif ~any(diff(idx) > 1) & min(idx) == 1 & max(idx) < size(RoiInd, 2) - 1
-                idx = [idx; [1 2]'+idx(end);[-1 0]'+size(RoiInd,2)];
-                
-            elseif ~any(diff(idx) > 1) & min(idx) > 2  & max(idx) == size(RoiInd,2)
-                idx = [ [1 2]'; [-2 -1]'+idx(1); idx];
-            elseif ~any(diff(idx) > 1) & min(idx) > 2  & max(idx) == size(RoiInd,2)-1
-                idx = [ [1]'; [-2 -1]'+idx(1); idx; size(RoiInd,2)];
-                
-            elseif numel(find(diff(idx) > 1)) == 1 & min(idx) == 1 & max(idx) == size(RoiInd,2)
-                id = find(diff(idx) > 1);
-                idx = [idx(1:id); [1 2]'+idx(id); [-2 -1]'+idx(id+1);idx(id+1:end)];
-                
-            elseif numel(find(diff(idx) > 1)) == 1 & min(idx) >2 & max(idx) < size(RoiInd,2) - 1
-                idx = [ [-2 -1]'+min(idx); idx ; [1 2]'+idx(end)];
-                
-            elseif numel(find(diff(idx) > 1)) == 1 & min(idx) >2 & max(idx) == size(RoiInd,2) - 1
-                idx = [1; [-2 -1]'+min(idx); idx ; [1 ]'+idx(end)];
-                
-                
-            elseif numel(find(diff(idx) > 1)) > 1 & min(idx) == 1 & max(idx) == size(RoiInd,2)
-                [~, id] = max(diff(idx));
-                idx = [idx(1:id); [1 2]'+idx(id); [-2 -1]'+idx(id+1);idx(id+1:end)];
-                
-                
-            else
-                idx =idx; %#ok<ASGSL>
-                
-                
-            end
-            
-            RoiInd(j,idx) = 1;
-            
-            
-            
-            
-            
-        end
-        
-    end
-    
-    Iroi = Frame(RoiInd);
-    Iroi(CH(RoiInd) == 0) = NaN;
-    if size(Seeds,1) == 1
-        [~, PointSub] = min(Iroi);
-        PointInd = PointSub;
-    else
-        [~, PointSub] = min(Iroi, [], 2);
-        PointInd = sub2ind(size(RoiInd), 1:length(PointSub), PointSub');
-    end
-    
-    
-    [Traces(1, :, i), Traces(2,:,i)] = ind2sub(size(Frame), RoiInd(PointInd));
-    
-    trace_finished(CH(RoiInd(PointInd)) == 0) = trace_finished(CH(RoiInd(PointInd)) == 0) + 1;
-    trace_edges(CH(RoiInd(PointInd)) == 0.5) = trace_edges(CH(RoiInd(PointInd)) == 0.5) + 1;
-    
-    
-    
-    if i < 3
-        trace_finished(CH(RoiInd(PointInd)) == 0.5) =  trace_finished(CH(RoiInd(PointInd)) == 0.5) + 1;
-    elseif any(CH(RoiInd(PointInd)) == 0.5)
-        nan_traces = find(CH(RoiInd(PointInd)) == 0.5);
-        
-        
-        
-        for j = 1:length(nan_traces)
-            
-            
-            t = squeeze(Traces(:, nan_traces(j), :));
-            i1 = find(t(1,:) == 1, 1, 'first');
-            i2 = find(t(2,:) == 1, 1, 'first');
-            
-         
-            if ~isempty([i1 i2])
-                t = t(:,1:max([i1 i2])-1);
-            end
-            
-            if i < 10
-                rawax = 1:i;
-                fitax = 1:0.5:i+10;
-            else
-                rawax = 1:10;
-                fitax = 1:0.5:i+10;
-            end
-            
-            
-            if size(t, 2) >= length(rawax)
-                px = polyfit(rawax, t(1,end-length(rawax)+1:end), 1);
-                py = polyfit(rawax, t(2,end-length(rawax)+1:end), 1);
-                
-                tfit = [];
-                tfit(1,:) = round(polyval(px, fitax));
-                tfit(2,:) = round(polyval(py, fitax));
-                
-                throwidx = [find(tfit(1,:) < 1), find(tfit(1,:) > FrameHeight)];
-                throwidx = [throwidx, find(tfit(2,:) < 1), find(tfit(2,:) > FrameWidth)];
-                
-                if ~isempty(throwidx)
-                    tfit(:, throwidx) = NaN;
-                    tfit = tfit(:, ~isnan(tfit(1,:)));
-                end
-                
-                tfitInd = sub2ind(size(Frame), tfit(1,:), tfit(2,:));
-                ptInd = find(CH(tfitInd) == 0.5,1,'last');
-                
-                if ptInd < size(tfit,2)-5
-                    LastPt = tfit(:, ptInd+1);
-                    %ThetaLoop = squeeze(Theta(:, nan_traces(j), :));
-                    
-                    vt = tfit(:, end) - tfit(:, end-5);
-                    T1 = atan2d(vt(2,1), vt(1,1)) + HH;
-                    T2 = [];
-                    T2(1,:) = 6*cosd(T1)';
-                    T2(2,:) = 6*sind(T1)';
-                    
-                    
-                    
-                    RoiSub = round(LastPt + T2);
-                    RoiSub(RoiSub < 1) = 1;
-                    RoiSub(1,RoiSub(1,:) > FrameHeight) = 1;
-                    RoiSub(2,RoiSub(2,:) > FrameWidth) = 1;
-                    RoiInd = squeeze(sub2ind(size(Frame), RoiSub(1,:), RoiSub(2,:)));
-                    Iroi = Frame(RoiInd);
-                    
-                    [~, PointSub] = min(Iroi, [], 2);
-                    PointInd = sub2ind(size(RoiInd), 1:length(PointSub), PointSub');
-                    [a,b] = ind2sub(size(Frame), RoiInd(PointInd));
-                    
-                    if CH(a,b) == 1
-                        Traces(1, nan_traces(j), i) = a;
-                        Traces(2, nan_traces(j), i) = b;
-                        trace_edges(nan_traces(j)) = 0;
-                        
-                    else
-                        
-                        trace_finished( nan_traces(j) ) = trace_finished( nan_traces(j) )  + 1;
-                    end
-                    
-                end
-            end
-        end
-        
-    end
-    
-    
-    
-    Traces(1:2,trace_finished>2,i) = 1;
-    
-    
-    
-    idx = find(trace_edges > 10 & Traces(1,:,i)>1);
-    if ~isempty(idx)
-        for j = 1:length(idx)
-            n_delete = trace_edges(idx(j));
-            Traces(:, idx(j), i-n_delete:i) = 1;
-        end
-    end
-    
-    
-    
-end
-
-Traces(Traces == 1) = NaN;
-
-
-
-TOut = {};
-TracesOut = {};
-Or = [];
-for i = 1:size(Traces,2)
-    t = squeeze(Traces(:,i,:));
-    idx = find(~isnan(t(1,:)),1,'last');
-    t = t(:, 1:idx);
-    if size(t,2) > 10
-        TOut{end+1} = t';
-        Or(end+1,:) = t(:,1)';
-    end
-    
-    
-end
-
-
-if ~isempty(Or)
-    dx = abs(Or(:,1) - Or(:,1)');
-    dy = abs(Or(:,2) - Or(:,2)');
-    d = sqrt( (dx+dy).^2 );
-    
-    
-    
-    flag = ones(1, size(TOut, 2));
-    for i = 1:length(flag)
-        d(i,i) = NaN;
-        idx = find(d(i,:) < 10);
-        if ~isempty(idx)
-            t1 = TOut{i};
-            
-            for j = 1:length(idx)
-                t2 = TOut{idx(j)};
-                dx = abs(t1(:,1) - t2(:,1)');
-                dy = abs(t1(:,2) - t2(:,2)');
-                dnew = sqrt( (dx+dy).^2);
-                %val = min(dnew,[],2);
-                dist = mean(min(dnew,[],2));
-                
-                if dist < 3
-                    flag(i) = 0;
-                    d(:,i) = NaN;
-                end
-            end
-        end
-    end
-    
-    
-    for i = 1:length(flag)
-        if flag(i)
-            TracesOut{end+1} = TOut{i}; %#ok<*AGROW>
-        end
-    end
-end
 
 if ~handles.show.Threshold
     imagesc(handles.axes6, handles.FrameIn)
 else
-    imagesc(handles.axes6, CH);
+    imagesc(handles.axes6, Misc.CH);
 end
 colormap(handles.axes6, 'gray')
 hold(handles.axes6, 'on')

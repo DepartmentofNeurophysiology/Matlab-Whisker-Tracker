@@ -1,13 +1,19 @@
 function Results = getBackground(Settings)
 
-idx = round(linspace(1,Settings.Nframes,100));
-Frames = zeros(512, 640, length(idx));
-for i = 1:length(idx)
-    Settings.Current_frame = idx(i)-1;
-    Frames(:,:,i)= LoadFrame(Settings);
+if isfield(Settings, 'state') && strcmp(Settings.state, 'setup')
+    sumFrames = Settings.sumFrames;
+    meanFrames = Settings.meanFrames;
+
+else    
+    idx = round(linspace(1,Settings.Nframes,100));
+    Frames = zeros(512, 640, length(idx));
+    for i = 1:length(idx)
+        Settings.Current_frame = idx(i)-1;
+        Frames(:,:,i)= LoadFrame(Settings);
+    end
+    sumFrames = sum(Frames,3);
+    meanFrames = mean(Frames,3);
 end
-sumFrames = sum(Frames,3);
-meanFrames = mean(Frames,3);
 
 KL = conv2(meanFrames, ...
     ones(Settings.Edges_kernel_large,Settings.Edges_kernel_large)./...
