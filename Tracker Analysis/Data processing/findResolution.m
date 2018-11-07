@@ -1,5 +1,5 @@
 function findResolution()
-
+% Find video resolution 
 %%
 path = 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance';
 load(fullfile(path, 'gapwidths.mat'))

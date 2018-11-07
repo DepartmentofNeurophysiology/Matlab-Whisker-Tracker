@@ -1,4 +1,23 @@
 function Results = getBackground(Settings)
+%Results = getBackground(Settings)
+% Extract background and edges using background averaging and
+% a laplacian of gaussian approach.
+%
+% Input:
+% Settings struct with fields:
+% -state (optional, used in parameter setup to prevent video sampling on
+%  each run)
+% -Nframes  (number of frames in video)
+% -Edges_kernel_large (size of box kernel for edge detection)
+% -Edges_kernel_small (size of delta kernel for edge detection)
+% -Background_threshold (threshold for binarization)
+%
+% Output:
+% Results struct with fields:
+% -Edges  (binary matrix marking edges)
+% -Objects (binary matrix marking objects)
+% -gapinfo (information on gapsize
+%%
 
 if isfield(Settings, 'state') && strcmp(Settings.state, 'setup')
     sumFrames = Settings.sumFrames;
@@ -47,9 +66,6 @@ Objects = zeros(size(Background));
 
 Objects(Background > 0) = 1;
 Results = Costumbackground(Objects, Edges);
-Objects = Results.Objects;
-
-%%
 
 
 

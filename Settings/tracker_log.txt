@@ -1,445 +1,0 @@
-
-
-
-2018/07/12 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Mouse 47\R17
-
-15:24:53 \Data_15
-
-
-
-2018/07/12 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Mouse 47\R17
-
-15:26:35 \Data_15
-	 Time elapsed: 123
-	 # Frames: 516
-	 # Tracked: 471
-	 Speed: 3.83
-	 # Traces: 8138
-
-15:28:37 \Data_17
-	 Time elapsed: 185
-	 # Frames: 718
-	 # Tracked: 661
-	 Speed: 3.57
-	 # Traces: 16040
-
-
-
-
-2018/07/13 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Tracking demo _ Single (row)
-
-11: 0:42 \11162015_M1_R126_0_4
-	 Time elapsed: 144
-	 # Frames: 468
-	 # Tracked: 462
-	 Speed: 3.20
-	 # Traces: 3970
-
-11: 3: 7 \11162015_M1_R126_1_3
-
-
-
-2018/07/13 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Tracking demo _ Single (row)
-
-11: 6:40 \11162015_M1_R126_0_4
-	 Time elapsed: 902
-	 # Frames: 2949
-	 # Tracked: 2885
-	 Speed: 3.20
-	 # Traces: 30288
-
-11:21:41 \11162015_M1_R126_1_4(1)
-
-
-
-2018/07/23 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47
-
-18:30: 6 \R10\Data_10
-
- An error occured!
-
-18:32:53 \R11\Data_14
-
- An error occured!
-
-18:34:29 \R12\Data_5
-
- An error occured!
-
-18:35: 8 \R14\Data_12
-
- An error occured!
-
-18:36: 6 \R14\Data_3
-
- An error occured!
-
-18:36: 6 \R4\Data_7
-
- An error occured!
-
-18:41:29 \R4\Data_9
-
- An error occured!
-
-18:46:24 \R5\Data_13
-
- An error occured!
-
-18:50: 4 \R5\Data_14
-
- An error occured!
-
-19: 0:36 \R9\Data_7
-
-
-
-2018/07/23 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47
-
-19:12:45 \R10\Data_10
-
- An error occured!
-
-	 Time elapsed: 240
-	 # Frames: 719
-	 # Tracked: 413
-	 Speed: 1.72
-	 # Traces: 12163
-
-
-
-
-2018/07/23 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47
-
-19:21:36 \R10\Data_10
-	 Time elapsed: 156
-	 # Frames: 719
-	 # Tracked: 413
-	 Speed: 2.64
-	 # Traces: 12163
-
-19:24:12 \R11\Data_14
-	 Time elapsed: 96
-	 # Frames: 565
-	 # Tracked: 262
-	 Speed: 2.73
-	 # Traces: 7383
-
-19:26:53 \R12\Data_5
-	 Time elapsed: 39
-	 # Frames: 416
-	 # Tracked: 103
-	 Speed: 2.62
-	 # Traces: 2335
-
-19:28:22 \R14\Data_12
-	 Time elapsed: 59
-	 # Frames: 473
-	 # Tracked: 159
-	 Speed: 2.70
-	 # Traces: 4125
-
-19:29:52 \R14\Data_3
-
-
-
-2018/07/23 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47
-
-19:36:49 \R10\Data_10
-
- An error occured!
-
-19:36:49 \R11\Data_14
-
-
-
-2018/07/23 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47
-
-19:37:44 \R10\Data_10
-
-
-
-2018/07/23 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47
-
-19:38:31 \R10\Data_10
-	 Time elapsed: 274
-	 # Frames: 719
-	 # Tracked: 668
-	 Speed: 2.44
-	 # Traces: 14049
-
-19:43: 4 \R11\Data_14
-	 Time elapsed: 159
-	 # Frames: 565
-	 # Tracked: 437
-	 Speed: 2.74
-	 # Traces: 7992
-
-19:46:53 \R12\Data_5
-	 Time elapsed: 101
-	 # Frames: 416
-	 # Tracked: 270
-	 Speed: 2.68
-	 # Traces: 5011
-
-19:49:22 \R14\Data_12
-	 Time elapsed: 177
-	 # Frames: 473
-	 # Tracked: 467
-	 Speed: 2.64
-	 # Traces: 8264
-
-19:52:55 \R14\Data_3
-	 Time elapsed: 107
-	 # Frames: 283
-	 # Tracked: 277
-	 Speed: 2.60
-	 # Traces: 6617
-
-19:55:25 \R4\Data_3
-	 Time elapsed: 683
-	 # Frames: 1882
-	 # Tracked: 1560
-	 Speed: 2.29
-	 # Traces: 50534
-
-20: 7:16 \R4\Data_7
-	 Time elapsed: 413
-	 # Frames: 1124
-	 # Tracked: 1059
-	 Speed: 2.57
-	 # Traces: 24578
-
-20:17:29 \R5\Data_13
-	 Time elapsed: 333
-	 # Frames: 897
-	 # Tracked: 886
-	 Speed: 2.66
-	 # Traces: 21448
-
-20:24:52 \R5\Data_14
-	 Time elapsed: 670
-	 # Frames: 2306
-	 # Tracked: 1682
-	 Speed: 2.51
-	 # Traces: 38635
-
-20:37:32 \R9\Data_7
-
-
-
-2018/07/23 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Chronic experiments\Tracking demo _ Single (row)
-
-20:54:17 \11162015_M1_R126_0_4
-	 Time elapsed: 1136
-	 # Frames: 2949
-	 # Tracked: 2884
-	 Speed: 2.54
-	 # Traces: 29383
-
-21:13:12 \11162015_M1_R126_1_3
-
-
-
-2018/07/24 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Chronic experiments\Tracking demo _ Single (row)
-
-16: 8:10 \11162015_M1_R126_0_4
-
-
-
-2018/07/24 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Chronic experiments\Tracking demo _ Single (row)
-
-16:11: 3 \11162015_M1_R126_0_4
-
-
-
-2018/07/24 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Chronic experiments\Tracking demo _ Single (row)
-
-16:34:17 \11162015_M1_R126_0_4
-	 Time elapsed: 1089
-	 # Frames: 2949
-	 # Tracked: 2906
-	 Speed: 2.67
-	 # Traces: 30155
-
-16:52:25 \11162015_M1_R126_1_3
-	 Time elapsed: 2107
-	 # Frames: 4769
-	 # Tracked: 4713
-	 Speed: 2.24
-	 # Traces: 59241
-
-17:31:56 \11162015_M1_R126_1_4(1)
-	 Time elapsed: 1153
-	 # Frames: 4035
-	 # Tracked: 3153
-	 Speed: 2.73
-	 # Traces: 47181
-
-17:58:13 \11162015_M1_R126_1_4
-	 Time elapsed: 1903
-	 # Frames: 8235
-	 # Tracked: 3634
-	 Speed: 1.91
-	 # Traces: 37411
-
-18:37:18 \11182015_M1_R137_1_4(1)
-	 Time elapsed: 239
-	 # Frames: 468
-	 # Tracked: 462
-	 Speed: 1.93
-	 # Traces: 4688
-
-18:53: 3 \11182015_M1_R137_1_4(2)
-	 Time elapsed: 1807
-	 # Frames: 4594
-	 # Tracked: 3590
-	 Speed: 1.99
-	 # Traces: 42321
-
-19:23:59 \11182015_M1_R137_1_4
-	 Time elapsed: 683
-	 # Frames: 5732
-	 # Tracked: 1182
-	 Speed: 1.73
-	 # Traces: 14381
-
-19:43:46 \11182015_M1_R137_1_5(1)
-	 Time elapsed: 1314
-	 # Frames: 3266
-	 # Tracked: 2928
-	 Speed: 2.23
-	 # Traces: 22328
-
-
-
-
-2018/07/26 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Analysed Videos\datfiles
-
-20:44:10 \Video_10
-	 Time elapsed: 243
-	 # Frames: 468
-	 # Tracked: 464
-	 Speed: 1.91
-	 # Traces: 13635
-
-
-
-
-2018/07/26 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Analysed Videos\datfiles
-
-23:13:41 \Video_20
-
- An error occured!
-
-23:13:41 \Video_21
-
- An error occured!
-
-23:13:41 \Video_22
-
- An error occured!
-
-23:13:41 \Video_3
-
-
-
-2018/07/26 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Chronic experiments\Tracking demo _ Single (row)
-
-23:33:56 \11162015_M1_R126_1_4(1)
-
- An error occured!
-
-23:56:59 \11162015_M1_R126_1_4
-
-
-
-2018/07/27 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Chronic experiments\Tracking demo _ Single (row)
-
- 0: 2:25 \11162015_M1_R126_1_4(1)
-
-
-
-2018/07/27 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Chronic experiments\Tracking demo _ Single (row)
-
- 0: 5:28 \11182015_M1_R137_1_4(1)
-
- An error occured!
-
-
-
-
-2018/07/27 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Chronic experiments\Tracking demo _ Single (row)
-
- 0:18:19 \11182015_M1_R137_1_4(1)
-
- An error occured!
-
-	 Time elapsed: 884
-	 # Frames: 468
-	 # Tracked: 462
-	 Speed: 0.52
-	 # Traces: 4691
-
-
-
-
-2018/07/27 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47\R4
-
-18: 9:17 \Data_3
-	 Time elapsed: 815
-	 # Frames: 1882
-	 # Tracked: 1559
-	 Speed: 1.91
-	 # Traces: 57095
-
-18:22:51 \Data_7
-18:28:47 \Data_7
-
-
-
-2018/07/27 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47\R4
-
-18:34: 2 \Data_7
-	 Time elapsed: 502
-	 # Frames: 1124
-	 # Tracked: 1049
-	 Speed: 2.09
-	 # Traces: 27115
-
-	 Time elapsed: 718
-	 # Frames: 1124
-	 # Tracked: 1049
-	 Speed: 1.46
-	 # Traces: 27115
-
-
-
-
-2018/07/28 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47\R4
-
-
-
-
-2018/07/28 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47\R4
-
-
-
-
-2018/07/28 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47\R4
-
-
-
-
-2018/07/28 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47\R4
-
-
-
-
-2018/07/28 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47\R4
-
-
-
-
-2018/07/28 - batch dir: E:\Studie\Stage Neurobiologie\Videos\Human clicked\Mouse 47\R4
-
