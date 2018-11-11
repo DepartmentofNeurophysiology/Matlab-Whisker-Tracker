@@ -75,17 +75,12 @@ SLL = imdilate(SLS, strel('diamond', Settings.Dilation)); % Silhouette Large
 
 kernel = -ones(Settings.Trace_kernel_large, Settings.Trace_kernel_large)./Settings.Trace_kernel_large.^2;
 midx = ceil(Settings.Trace_kernel_large/2) - (Settings.Trace_kernel_small - 1);
-kernel(midx:midx+Settings.Trace_kernel_small-1, midx:midx+Settings.Trace_kernel_small-1) = 1;
-kernel = kernel./sum(sum(kernel));
+kernel(midx:midx+Settings.Trace_kernel_small, midx:midx+Settings.Trace_kernel_small)
+
+Control = zeros(size(Objects));
+Control(0.5*Delta_kernel./Box_kernel < Settings.Trace_threshold) = 1; % Modified gaussian of laplacian
 
 
-
-% Control = zeros(size(Objects));
-% Control(0.5*Delta_kernel./Box_kernel < Settings.Trace_threshold) = 1; % Modified gaussian of laplacian
-% 
-
-Control = zeros(size(Frame));
-Control( conv2(Frame, kernel, 'same') < Settings.Trace_threshold) = 1;
 FrameHeight = size(Frame, 1);
 FrameWidth = size(Frame, 2);
 

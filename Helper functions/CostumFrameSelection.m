@@ -55,6 +55,9 @@ switch( Settings.frame_select)
         Nose  = Output.Nose;
 
         for i = 1:length(frame_idx)
+            if isnan(Nose(i,1)) | isnan(Nose(i,2))
+                frame_idx(i) = 0;
+            end
             if Nose(i,1) <= 5 | Nose(i,2) <= 5 | ...
                     Nose(i,1) >= Settings.Video_width-5 | ...
                     Nose(i,2) >= Settings.Video_heigth-5 %#ok<*OR2>

@@ -24,7 +24,7 @@ if isfield(Settings, 'state') && strcmp(Settings.state, 'setup')
     meanFrames = Settings.meanFrames;
 
 else    
-    idx = round(linspace(1,Settings.Nframes,100));
+    idx = round(linspace(2,Settings.Nframes,100));
     Frames = zeros(512, 640, length(idx));
     for i = 1:length(idx)
         Settings.Current_frame = idx(i)-1;

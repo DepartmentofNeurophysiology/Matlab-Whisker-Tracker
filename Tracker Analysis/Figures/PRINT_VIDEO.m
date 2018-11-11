@@ -73,16 +73,18 @@ if isempty(p.Results.FileIndex) & isempty(p.Results.FileName)
     return
 end
 
+
 if ~isempty(p.Results.FileIndex)
     load(fullfile( Files(p.Results.FileIndex).folder, Files(p.Results.FileIndex).name) )
-    video_file = fullfile( Files(p.Results.FileIndex).folder, [Files(p.Results.FileIndex).name(1:end-13) '.dat']);
+    Settings = Annotations.Settings;
+    video_file = fullfile( Files(p.Results.FileIndex).folder, [Files(p.Results.FileIndex).name(1:end-13) Settings.video_extension]);
 elseif ~isempty(p.Results.FileName)
     fname = [p.Results.FileName '_compiled.mat'];
     load(fullfile( p.Results.dPath, fname))
-    video_file = fullfile(p.Results.dPath, [p.Results.FileName '.dat']);
+    Settings = Annotations.Settings;
+    video_file = fullfile(p.Results.dPath, [p.Results.FileName Settings.video_extension]);
 end
 disp(video_file)
-Settings = Annotations.Settings;
 Settings.Video = video_file;
 
 

@@ -547,7 +547,7 @@ Data.TOUCH = TOUCH;
 
 %maxval = max([TOUCH.Tracker;TOUCH.Manual]);
 maxval = 8;
-nbins = maxval+1;TTouch
+nbins = maxval+1;
 
 TOUCHCOUNT = zeros(maxval+1,maxval+1);
 for i = 0:maxval

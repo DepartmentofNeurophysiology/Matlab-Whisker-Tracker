@@ -73,93 +73,108 @@ end
 
 close(h)
 
+
+
+%%
 t = table(Dist,nTouch,Width,Video,Type,'VariableNames',{'Dist','nTouch','Width','Video','Type'});
+dsize=  2;
+dist_bins = -25:dsize:50;
+t.Dist_bin = discretize(t.Dist, dist_bins);
+for i = 1:size(t, 1)
+    if ~isnan(t.Dist_bin(i))
+    t.Dist_bin(i) = dist_bins(t.Dist_bin(i)) + dsize/2;
+    end
+end
 
-t = t(t.Width > 15,:);
+
+t_sorted = varfun(@sum, t, 'InputVariables','nTouch','GroupingVariables',{'Type','Video','Width'});
+t_sorted.Properties.VariableNames{4} = 'Duration';
+t_sorted.Duration = t_sorted.Duration* (1/ median(freq));
+keep_idx = find(...
+    t_sorted.sum_nTouch > 0 & ...
+    t_sorted.Width > 5 & ...
+    t_sorted.Duration < 2);
+
+t_filtered = t_sorted(keep_idx,:);
 
 
-a = varfun(@mean, t, 'InputVariables','Width','GroupingVariables',{'Type','Video'});
-sidx=  find(strcmp(a.Type,'Single'));
-midx = find(strcmp(a.Type,'Multi'));
+%% AX 1
 
 
 Data.table = t;
-Data.table_sorted_1 = a;
+Data.table_sorted = t_sorted;
+Data.table_filtered = t_filtered;
+
+Data.ax1.single_width = t_filtered.Width( strcmp(t_filtered.Type, 'Single'));
+Data.ax1.single_touch = t_filtered.sum_nTouch( strcmp(t_filtered.Type, 'Single'));
+
+Data.ax1.multi_width = t_filtered.Width( strcmp(t_filtered.Type, 'Multi'));
+Data.ax1.multi_touch = t_filtered.sum_nTouch( strcmp(t_filtered.Type, 'Multi'));
 
 
-sidx = find(strcmp(Data.table_sorted_1.Type, 'Single') & Data.table_sorted_1.GroupCount < 1000);
-midx = find(strcmp(Data.table_sorted_1.Type, 'Multi') & Data.table_sorted_1.GroupCount < 1000);
+%%
 
-Data.show.single.xax = Data.table_sorted_1.mean_Width(sidx);
-Data.show.single.data = Data.table_sorted_1.GroupCount(sidx);
-Data.show.multi.xax = Data.table_sorted_1.mean_Width(midx);
-Data.show.multi.data = Data.table_sorted_1.GroupCount(midx);
+% Data.fit.single.xax = Data.table_sorted_1.mean_Width(sidx);
+% Data.fit.single.data = Data.table_sorted_1.GroupCount(sidx);
+% Data.fit.single.p = polyfit( Data.fit.single.xax, Data.fit.single.data, 1);
+% Data.fit.single.showax = 25:55;
+% Data.fit.single.showfit = polyval(Data.fit.single.p, Data.fit.single.showax);
+% Data.fit.single.Rfit = polyval(Data.fit.single.p, Data.fit.single.xax);
+% Data.fit.single.SSE = sum( ( Data.fit.single.data - mean(Data.fit.single.data)).^2);
+% Data.fit.single.SSTO = sum( (Data.fit.single.data - Data.fit.single.Rfit).^2);
+% Data.fit.single.RS = abs(1 - Data.fit.single.SSE/ Data.fit.single.SSTO);
+% 
+% 
+% Data.fit.multi.xax = Data.table_sorted_1.mean_Width(midx);
+% Data.fit.multi.data = Data.table_sorted_1.GroupCount(midx);
+% Data.fit.multi.p = polyfit( Data.fit.multi.xax, Data.fit.multi.data, 1);
+% Data.fit.multi.showax = 25:55;
+% Data.fit.multi.showfit = polyval(Data.fit.multi.p, Data.fit.multi.showax);
+% Data.fit.multi.Rfit = polyval(Data.fit.multi.p, Data.fit.multi.xax);
+% Data.fit.multi.SSE = sum( (Data.fit.multi.data - mean(Data.fit.multi.data)).^2);
+% Data.fit.multi.SSTO  = sum( (Data.fit.multi.data - Data.fit.multi.Rfit).^2);
+% Data.fit.multi.RS = abs(1-Data.fit.multi.SSE/ Data.fit.multi.SSTO);
+% 
 
+%% AX2  
 
+Data.ax2.single_width = t_filtered.Width( strcmp(t_filtered.Type, 'Single'));
+Data.ax2.single_duration = t_filtered.Duration( strcmp(t_filtered.Type, 'Single'));
 
-Data.fit.single.xax = Data.table_sorted_1.mean_Width(sidx);
-Data.fit.single.data = Data.table_sorted_1.GroupCount(sidx);
-Data.fit.single.p = polyfit( Data.fit.single.xax, Data.fit.single.data, 1);
-Data.fit.single.showax = 25:55;
-Data.fit.single.showfit = polyval(Data.fit.single.p, Data.fit.single.showax);
-Data.fit.single.Rfit = polyval(Data.fit.single.p, Data.fit.single.xax);
-Data.fit.single.SSE = sum( ( Data.fit.single.data - mean(Data.fit.single.data)).^2);
-Data.fit.single.SSTO = sum( (Data.fit.single.data - Data.fit.single.Rfit).^2);
-Data.fit.single.RS = abs(1 - Data.fit.single.SSE/ Data.fit.single.SSTO);
-
-
-Data.fit.multi.xax = Data.table_sorted_1.mean_Width(midx);
-Data.fit.multi.data = Data.table_sorted_1.GroupCount(midx);
-Data.fit.multi.p = polyfit( Data.fit.multi.xax, Data.fit.multi.data, 1);
-Data.fit.multi.showax = 25:55;
-Data.fit.multi.showfit = polyval(Data.fit.multi.p, Data.fit.multi.showax);
-Data.fit.multi.Rfit = polyval(Data.fit.multi.p, Data.fit.multi.xax);
-Data.fit.multi.SSE = sum( (Data.fit.multi.data - mean(Data.fit.multi.data)).^2);
-Data.fit.multi.SSTO  = sum( (Data.fit.multi.data - Data.fit.multi.Rfit).^2);
-Data.fit.multi.RS = abs(1-Data.fit.multi.SSE/ Data.fit.multi.SSTO);
-
-
+Data.ax2.multi_width = t_filtered.Width(strcmp( t_filtered.Type, 'Multi'));
+Data.ax2.multi_duration = t_filtered.Duration( strcmp(t_filtered.Type, 'Multi'));
 
 
 %%
 % bins for distance binarization
-dsize=  2;
-dist_bins = -25:dsize:50;
-t.Dist_bin = discretize(t.Dist, dist_bins);
+
+t_sorted = varfun(@sum, t, 'InputVariables', 'nTouch', 'GroupingVariables', {'Dist_bin','Type'});
+
+t_sorted.Properties.VariableNames{3} = 'Duration';
+t_sorted.Duration =  t_sorted.Duration * (1/median(freq));
+t_filtered = t_sorted;
+
+tt = varfun(@mean, t, 'InputVariables', 'Width', 'GroupingVariables',{'Video','Type'});
+n_videos_single = numel(find(strcmp(tt.Type, 'Single')));
+n_videos_multi = numel(find(strcmp(tt.Type, 'Multi')));
 
 
 
-res = [];
-for i = 1:length(dist_bins)
-    ids = find(t.Dist_bin == i & strcmp(t.Type,'Single'));
-    idm = find(t.Dist_bin == i & strcmp(t.Type,'Multi'));
-    res(i,1) = dist_bins(i) + dsize/2;
-    res(i,2) = mean(t.nTouch(ids));
-    res(i,4) = std(t.nTouch(ids));
-    res(i,3) = mean(t.nTouch(idm));
-    res(i,5) = std(t.nTouch(idm));
-end
-res(isnan(res)) = 0;
-res(:,4) = res(:,4)./sum(res(:,2));
-res(:,5) = res(:,5)./sum(res(:,3));
-res(:,2) = res(:,2)./sum(res(:,2));
-res(:,3) = res(:,3)./sum(res(:,3));
+Data.ax3.table = t_sorted;
+sidx = find(strcmp(t_filtered.Type, 'Single'));
+Data.ax3.single_dist = t_filtered.Dist_bin( sidx);
+Data.ax3.single_touch = t_filtered.sum_nTouch( sidx)./ n_videos_single;
+Data.ax4.single_dist = t_filtered.Dist_bin( sidx);
+Data.ax4.single_duration = t_filtered.Duration(sidx)./ n_videos_single;
 
-Data.dist_v_ntouch = res;
+midx = find(strcmp(t_filtered.Type, 'Multi'));
+Data.ax3.multi_dist = t_filtered.Dist_bin(midx);
+Data.ax3.multi_touch = t_filtered.sum_nTouch(midx)./ n_videos_multi;
+Data.ax4.multi_dist = t_filtered.Dist_bin(midx);
+Data.ax4.multi_duration = t_filtered.Duration(midx)./ n_videos_multi;
 
 
-res = [];
-for i = 1:length(dist_bins)
-     ids = find(t.Dist_bin == i & strcmp(t.Type,'Single'));
-    idm = find(t.Dist_bin == i & strcmp(t.Type,'Multi'));
-    res(i,1) = dist_bins(i) + dsize/2;
-    res(i,2) = numel(find(ids));
-    res(i,3) = numel(find(idm));
-end
-res(:,2) = res(:,2)./sum(res(:,2));
-res(:,3) = res(:,3)./sum(res(:,3));
 
-Data.dist_v_count = res;
 
 save(fullfile(filepath, 'DataFigBeh'), 'Data')
 

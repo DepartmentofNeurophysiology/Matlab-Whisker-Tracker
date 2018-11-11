@@ -26,29 +26,14 @@ if strcmp(resp,'y')
     load('Settings\Settings.mat')
     handles.show.FullRoi = Settings.FullRoi;
 else
-    Settings.Gaussian_kernel_size = 3;
-    Settings.doGaussian = 1;
-    Settings.Gamma = 1;
-    Settings.Background_threshold = 0.5;
-    Settings.Edges_kernel_large = 10;
-    Settings.Edges_kernel_small = 6;
-    Settings.Edges_threshold = 0.35;
-    Settings.Shape_threshold = 0.21;
-    Settings.Dilation = 5;
-    Settings.Seed_threshold = 0.05;
-    Settings.Trace_threshold = 0.49;
-    Settings.Trace_kernel_large = 5;
-    Settings.Trace_kernel_small = 1;
-    Settings.video_extension = '.dat';
-    Settings.FullRoi = 0;
-    
+    defaultSettings;    
     handles.show.FullRoi = 0;
 end
 
 
 handles.State.folder = uigetdir('Select video folder');
 %handles.State.folder = 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance';
-handles.State.videos = scanfiles(handles.State.folder, Settings.video_extension, 10, '');
+handles.State.videos = scanfiles(handles.State.folder, Settings.video_extension, 10, Settings.format);
 handles.State.current_video = 1;
 if isempty(handles.State.videos)
     disp('No videos found...')
@@ -74,7 +59,7 @@ handles.prop.ET = [0 1 0.01];
 handles.prop.SHT = [0 1 0.01];
 handles.prop.DL = [0 40 1];
 handles.prop.SET = [0 1 0.01];
-handles.prop.TT = [0 1 0.01];
+handles.prop.TT = [-1 1 0.01];
 handles.prop.TKL = [0 20 1];
 handles.prop.TKS = [0 20 1];
 
@@ -282,7 +267,7 @@ Settings = handles.Settings;
 %fdim = [Settings.Video_width, Settings.Video_heigth];
 warning('off')
 nframes = Settings.Nframes;
-idx = round(linspace(1,nframes,100));
+idx = round(linspace(2,nframes,100));
 Frames = zeros(512, 640, length(idx));
 for i = 1:length(idx)
     Settings.Current_frame = idx(i)-1;
@@ -419,22 +404,6 @@ function exportSettings(~,~,f)
 
 handles = guidata(f);
 Settings = handles.Settings;
-
-Settings.format = 'M(?<MOUSE>\d+)_R(?<SESSION>\d+)_(?<TRIAL>\d+).dat';
-Settings.use_parfor = 1;
-Settings.track_nose = 1;
-Settings.costum_background = 1;
-Settings.outpath = 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance';
-Settings.n_background_samples = 30; % number of sample frames to extract background
-Settings.frame_select = 'use_file';
-Settings.FrameFile = 'Frames_with_nose.mat';
-Settings.circle_start = -25;
-Settings.circle_end = 25;
-Settings.stepsize = 5;
-Settings.extrapolationsize = 7;
-Settings.dist_from_edge = 5;
-Settings.minimum_traclength = 8;
-
 Settings = orderfields(Settings); %#ok<NASGU>
 save('Settings\Settings.mat','Settings')
 end

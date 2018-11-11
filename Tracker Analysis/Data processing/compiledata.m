@@ -138,7 +138,12 @@ for file_index = 1:length(FilesToAdd)
     
     if exist(meta_file, 'file')
         MetaData = load(meta_file);
-        MetaData.Data.TimeMS = (MetaData.Data.Time(:,1) - MetaData.Data.Time(1,1))*1000;        
+        if isfield(MetaData, 'Data')
+            MetaData.Data.TimeMS = (MetaData.Data.Time(:,1) - MetaData.Data.Time(1,1))*1000;  
+        else
+            MetaData = [];
+            MetaData.Data = [];
+        end
     else
         fprintf(' - ERROR: metadata not found\n');
         %continue
