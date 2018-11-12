@@ -107,42 +107,46 @@ Data.table_filtered = t_filtered;
 
 Data.ax1.single_width = t_filtered.Width( strcmp(t_filtered.Type, 'Single'));
 Data.ax1.single_touch = t_filtered.sum_nTouch( strcmp(t_filtered.Type, 'Single'));
+Data.ax1.single_fit_p = polyfit(Data.ax1.single_width, Data.ax1.single_touch, 1);
+Data.ax1.single_fit_ax = 20:60;
+Data.ax1.single_fit = polyval(Data.ax1.single_fit_p, Data.ax1.single_width);
+Data.ax1.single_fit_plot = polyval(Data.ax1.single_fit_p, Data.ax1.single_fit_ax);
+Data.ax1.single_SSE = sum( (Data.ax1.single_touch - mean(Data.ax1.single_touch)).^2);
+Data.ax1.single_SSTO = sum( (Data.ax1.single_touch - Data.ax1.single_fit).^2);
+Data.ax1.single_RS = abs(1- Data.ax1.single_SSE/ Data.ax1.single_SSTO);
 
 Data.ax1.multi_width = t_filtered.Width( strcmp(t_filtered.Type, 'Multi'));
 Data.ax1.multi_touch = t_filtered.sum_nTouch( strcmp(t_filtered.Type, 'Multi'));
+Data.ax1.multi_fit_p = polyfit(Data.ax1.multi_width, Data.ax1.multi_touch, 1);
+Data.ax1.multi_fit_ax = 20:60;
+Data.ax1.multi_fit = polyval(Data.ax1.multi_fit_p, Data.ax1.multi_width);
+Data.ax1.multi_fit_plot = polyval(Data.ax1.multi_fit_p, Data.ax1.multi_fit_ax);
+Data.ax1.multi_SSE = sum( (Data.ax1.multi_touch - mean(Data.ax1.multi_touch)).^2);
+Data.ax1.multi_SSTO = sum( (Data.ax1.multi_touch - Data.ax1.multi_fit).^2);
+Data.ax1.multi_RS = abs(1-Data.ax1.multi_SSE/ Data.ax1.multi_SSTO);
 
-
-%%
-
-% Data.fit.single.xax = Data.table_sorted_1.mean_Width(sidx);
-% Data.fit.single.data = Data.table_sorted_1.GroupCount(sidx);
-% Data.fit.single.p = polyfit( Data.fit.single.xax, Data.fit.single.data, 1);
-% Data.fit.single.showax = 25:55;
-% Data.fit.single.showfit = polyval(Data.fit.single.p, Data.fit.single.showax);
-% Data.fit.single.Rfit = polyval(Data.fit.single.p, Data.fit.single.xax);
-% Data.fit.single.SSE = sum( ( Data.fit.single.data - mean(Data.fit.single.data)).^2);
-% Data.fit.single.SSTO = sum( (Data.fit.single.data - Data.fit.single.Rfit).^2);
-% Data.fit.single.RS = abs(1 - Data.fit.single.SSE/ Data.fit.single.SSTO);
-% 
-% 
-% Data.fit.multi.xax = Data.table_sorted_1.mean_Width(midx);
-% Data.fit.multi.data = Data.table_sorted_1.GroupCount(midx);
-% Data.fit.multi.p = polyfit( Data.fit.multi.xax, Data.fit.multi.data, 1);
-% Data.fit.multi.showax = 25:55;
-% Data.fit.multi.showfit = polyval(Data.fit.multi.p, Data.fit.multi.showax);
-% Data.fit.multi.Rfit = polyval(Data.fit.multi.p, Data.fit.multi.xax);
-% Data.fit.multi.SSE = sum( (Data.fit.multi.data - mean(Data.fit.multi.data)).^2);
-% Data.fit.multi.SSTO  = sum( (Data.fit.multi.data - Data.fit.multi.Rfit).^2);
-% Data.fit.multi.RS = abs(1-Data.fit.multi.SSE/ Data.fit.multi.SSTO);
-% 
 
 %% AX2  
 
 Data.ax2.single_width = t_filtered.Width( strcmp(t_filtered.Type, 'Single'));
 Data.ax2.single_duration = t_filtered.Duration( strcmp(t_filtered.Type, 'Single'));
+Data.ax2.single_fit_p = polyfit(Data.ax2.single_width, Data.ax2.single_duration, 1);
+Data.ax2.single_fit_ax = 20:60;
+Data.ax2.single_fit = polyval(Data.ax2.single_fit_p, Data.ax2.single_width);
+Data.ax2.single_fit_plot = polyval(Data.ax2.single_fit_p, Data.ax2.single_fit_ax);
+Data.ax2.single_SSE = sum( (Data.ax2.single_duration - mean(Data.ax2.single_duration)).^2);
+Data.ax2.single_SSTO = sum( (Data.ax2.single_duration - Data.ax2.single_fit).^2);
+Data.ax2.single_RS = abs(1-Data.ax2.single_SSE/Data.ax2.single_SSTO);
 
 Data.ax2.multi_width = t_filtered.Width(strcmp( t_filtered.Type, 'Multi'));
 Data.ax2.multi_duration = t_filtered.Duration( strcmp(t_filtered.Type, 'Multi'));
+Data.ax2.multi_p = polyfit(Data.ax2.multi_width, Data.ax2.multi_duration, 1);
+Data.ax2.multi_fit_ax = 20:60;
+Data.ax2.multi_fit = polyval(Data.ax2.multi_p, Data.ax2.multi_width);
+Data.ax2.multi_fit_plot = polyval(Data.ax2.multi_p, Data.ax2.multi_fit_ax);
+Data.ax2.multi_SSE = sum( (Data.ax2.multi_duration - mean(Data.ax2.multi_duration)).^2);
+Data.ax2.multi_SSTO = sum( (Data.ax2.multi_duration - Data.ax2.multi_fit).^2);
+Data.ax2.multi_RS = abs(1-Data.ax2.multi_SSE/Data.ax2.multi_SSTO);
 
 
 %%
