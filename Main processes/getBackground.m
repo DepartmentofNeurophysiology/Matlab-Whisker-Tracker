@@ -25,7 +25,10 @@ if isfield(Settings, 'state') && strcmp(Settings.state, 'setup')
 
 else    
     idx = round(linspace(2,Settings.Nframes,100));
-    Frames = zeros(512, 640, length(idx));
+    Settings.Current_frame = 1;
+    testframe = LoadFrame(Settings);
+    
+    Frames = zeros(size(testframe,1), size(testframe,2), length(idx));
     for i = 1:length(idx)
         Settings.Current_frame = idx(i)-1;
         Frames(:,:,i)= LoadFrame(Settings);

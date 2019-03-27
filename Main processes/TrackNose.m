@@ -35,7 +35,7 @@ end
 
 % Extract variables
 nframes = Settings.Nframes;
-stepsize = 20;%Settings.nose_interval;
+stepsize = 5;%Settings.nose_interval;
 frameidx = 1:stepsize:nframes;
 Base(1:length(frameidx),1:2) = NaN;
 

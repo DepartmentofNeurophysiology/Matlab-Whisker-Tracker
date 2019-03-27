@@ -4,13 +4,13 @@
 % type
 
 % Extension (for automated video detection in directories)
-Settings.video_extension = '.dat';
+Settings.video_extension = '.avi';
 
 % Use parallel processing
 Settings.use_parfor = 1;
 
 % Format (regexp string of filename format, optional, can be left empty
-Settings.format = 'M(?<MOUSE>\d+)_R(?<SESSION>\d+)_(?<TRIAL>\d+).dat';
+Settings.format = '';
 %Settings.format = '(?<date>\d+)_M(?<mouse>\d+)_R(?<trial>\d+)_(?<session>\d+)_(?<t2>\d+).mat';
 % Track nose
 Settings.track_nose = 1;

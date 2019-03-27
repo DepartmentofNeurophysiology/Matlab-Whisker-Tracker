@@ -33,6 +33,7 @@ function PRINT_VIDEO(varargin)
 %%
 p = inputParser;
 
+
 addParameter(p,'dPath', 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance');
 addParameter(p,'FileIndex',[])
 addParameter(p,'FileName',[])
@@ -213,7 +214,8 @@ for id = 1:length(display.show_frames)
     
     cla(display.ax1);
     imagesc(display.ax1, frame);
-    caxis(display.ax1,[0 1])
+    colormap(display.ax1,'gray')
+    %caxis(display.ax1,[0 1])
     hold(display.ax1, 'on')
     axis(display.ax1,'off')    
     if p.Results.d2A

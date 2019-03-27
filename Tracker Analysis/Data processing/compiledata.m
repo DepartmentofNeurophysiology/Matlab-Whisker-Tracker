@@ -72,6 +72,7 @@ if ~isempty(p.Results.File)
     Files(1).folder = p.Results.File(1:idx-1);
     Files(1).name = p.Results.File(idx+1:end);
     
+   
     
     if isdir(p.Results.File)
         fprintf('Specify filename, a directory was provided: \n%s\n', p.Results.File)
@@ -110,7 +111,7 @@ end
 
 for file_index = 1:length(FilesToAdd)
     PathName = Files( FilesToAdd( file_index )).folder;
-    BaseName = Files( FilesToAdd( file_index )).name(1:end-24);
+    BaseName = Files( FilesToAdd( file_index )).name(1:end-4);
     
     
     fprintf('(%2d/%2d) Saving tracking data ',file_index,length(FilesToAdd))
@@ -120,7 +121,7 @@ for file_index = 1:length(FilesToAdd)
     meta_file = fullfile( PathName, [BaseName '.mat']);
     
     % Tracker data
-    tracker_file = fullfile( PathName, [BaseName '_Annotations_Tracker.mat']);
+    tracker_file = fullfile( PathName, [BaseName '.mat']);
     
     % Manual data
     manual_file = fullfile( PathName, [BaseName '_Annotations.mat']);
@@ -135,7 +136,7 @@ for file_index = 1:length(FilesToAdd)
         fprintf(' - Allready compiled\n');
         continue
     end
-    
+    %{
     if exist(meta_file, 'file')
         MetaData = load(meta_file);
         if isfield(MetaData, 'Data')
@@ -148,8 +149,9 @@ for file_index = 1:length(FilesToAdd)
         fprintf(' - ERROR: metadata not found\n');
         %continue
     end
-    
-    fprintf('\n\t Structs added')    
+    %}
+    fprintf('\n\t Structs added')  
+    disp(tracker_file)
     if any(strcmp('Tracker', p.Results.Data)) && exist(tracker_file, 'file')        
         tracker_structs = who('-file', tracker_file);
         if any(strcmp('Output',tracker_structs)) & any(strcmp('Settings',tracker_structs))
@@ -158,7 +160,7 @@ for file_index = 1:length(FilesToAdd)
             Settings.Video(1) = PathName(1);
             
             % Copy tracker output to new Tracker struct
-            Tracker.MetaData = MetaData.Data;
+            %Tracker.MetaData = MetaData.Data;
             Tracker.Objects = Output.Objects;
             Tracker.Edges = Output.Edges;
             
@@ -195,7 +197,7 @@ for file_index = 1:length(FilesToAdd)
                 edgeIDX =[Tracker.gapinfo.edge_1, Tracker.gapinfo.edge_2];
             end
             
-            [Tracker.Touch, Tracker.TouchFiltered] = detectTouch(Tracker.Traces_clean, Tracker.Edges, edgeIDX);
+            %[Tracker.Touch, Tracker.TouchFiltered] = detectTouch(Tracker.Traces_clean, Tracker.Edges, edgeIDX);
             
             
             Annotations.Output = Output;

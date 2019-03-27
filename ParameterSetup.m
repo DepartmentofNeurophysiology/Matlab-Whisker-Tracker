@@ -42,6 +42,9 @@ end
 Settings.Video = fullfile(handles.State.videos(handles.State.current_video).folder,...
     handles.State.videos(handles.State.current_video).name);
 handles.State.Video = Settings.Video;
+if strcmp(handles.State.Video(end-3:end),'.avi')
+    handles.Video_object = VideoReader(handles.State.Video);
+end
 handles.State.current_frame = 1;
 
 
@@ -268,7 +271,9 @@ Settings = handles.Settings;
 warning('off')
 nframes = Settings.Nframes;
 idx = round(linspace(2,nframes,100));
-Frames = zeros(512, 640, length(idx));
+Settings.Current_frame = 1;
+testframe = LoadFrame(Settings);
+Frames = zeros(size(testframe,1), size(testframe,2), length(idx));
 for i = 1:length(idx)
     Settings.Current_frame = idx(i)-1;
     Frames(:,:,i) = LoadFrame(Settings);
@@ -294,6 +299,9 @@ handles.State.current_video = get(h,'Value');
 handles.State.Video = fullfile(handles.State.videos(handles.State.current_video).folder,...
     handles.State.videos(handles.State.current_video).name);
 handles.Settings.Video = handles.State.Video;
+if strcmp(handles.State.Video(end-3:end),'.avi')
+    handles.Video_object=VideoReader(handles.State.Video);
+end
 handles.Settings = getMetaData(handles.Settings);
 handles.State.current_frame = 1;
 set(handles.frameslider,'Max',handles.Settings.Nframes);

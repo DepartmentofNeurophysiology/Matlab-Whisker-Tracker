@@ -8,7 +8,7 @@ function frame = LoadFrame(Settings)
 %
 % Returns double matrix
 %%
-
+warning off MATLAB:subscripting:noSubscriptsSpecified
 
 % Get file name
 Video = Settings.Video;
@@ -42,10 +42,11 @@ switch(extension)
         
         
     otherwise
-        
+        Settings.Video_object = VideoReader(Video);
         if isfield(Settings,'Video_object') % Specified in 1st section in ParameterSetup
             frame = read(Settings.Video_object, framenr);
-            frame = rgb2gray(frame(:,:,:));
+            disp(size(frame))
+            %frame = rgb2gray(frame(:,:,:));
             frame = im2double(frame);
             
             
