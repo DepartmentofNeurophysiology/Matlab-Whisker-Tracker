@@ -146,6 +146,27 @@ for i = 1:nlayers
     else
         files = [files; loopfiles];
     end    
+    
+end
+
+if ~strcmp(extension,'_Annotations_Tracker.mat')
+    flag = ones(size(files,1),1);
+    for i = 1:size(files, 1)
+        if ~isempty(strfind(files(i).name, '_Annotated.avi'))
+            flag(i) = 0;
+        end
+    end
+
+
+    idx = 1;
+    for i = 1:length(flag)
+        if flag(i) == 1
+            files2(idx) = files(i);
+
+            idx = idx+1;
+        end
+    end
+    files = files2;
 end
 
 

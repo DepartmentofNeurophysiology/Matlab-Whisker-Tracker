@@ -104,7 +104,8 @@ colormap(handles.ax2,'gray')
 
 
 % Find number of frames to track
-nframes = handles.Data.Tracker.MetaData.NFrames;
+%nframes = handles.Data.Tracker.MetaData.NFrames;
+nframes = handles.Data.Settings.Nframes;
 ntraces_tracker = 0;
 %ntraces_manual = 0;
 %ntraces_janelia = 0;
@@ -228,7 +229,7 @@ while frame_flag == 1
     update_disp_struct(handles,tracked ,disp_struct)    
     disp_struct.current_frame = current_frame;
     Settings.Current_frame = current_frame;
-    frame = LF(Settings);
+    frame = LoadFrame(Settings);
     imagesc(handles.ax, frame);
     imagesc(handles.ax2, frame);    
     %Eval_traces.Manual{current_frame} = zeros(1, size(Manual.Traces{current_frame},2));

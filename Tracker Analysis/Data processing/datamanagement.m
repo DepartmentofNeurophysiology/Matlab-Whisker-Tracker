@@ -10,8 +10,9 @@ clc
 clear
 
 % Manage data for human vs tracker comparison
-db.path_human_clicked_store = 'E:\Studie\Stage Neurobiologie\Videos\Human clicked';
-db.path_human_clicked_paper = 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance';
+db.path_human_clicked_store = 'F:\Studie\Stage Neurobiologie\Videos\Human clicked';
+db.path_human_clicked_paper = 'F:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance';
+db.base_name = 'F:\Studie\Stage Neurobiologie\Videos\VideoDatabase';
 
 db.name_manual_annotations = '_Annotations.mat';
 db.name_video = '.dat';
@@ -24,8 +25,8 @@ db.unique = 'M%2d_R%02d_%02d';
 % Index available videos
 files = dir( fullfile(db.path_human_clicked_store,'**','*.dat'));
 
-if exist(fullfile( db.path_human_clicked_paper, 'overview.xlsx'), 'file')
-    delete( fullfile( db.path_human_clicked_paper, 'overview.xlsx' ));
+if exist(fullfile( db.base_name, 'overview.xlsx'), 'file')
+    delete( fullfile( db.base_name, 'overview.xlsx' ));
 end
 
 copy_data_to_path = 1;
@@ -96,10 +97,6 @@ for i = 1:size(files,1)
     outname{i,1} = fname;  
 end
 
-fprintf('saving excel file...');
-xlswrite( fullfile( db.path_human_clicked_paper, 'overview.xlsx' ), outname);
-fprintf(' done\n');
-
 
 
 
@@ -107,7 +104,7 @@ fprintf(' done\n');
 % copy gapwidth into an array and store in output folder
 fprintf('\n\n checking for ''general.mat'' files:\n');
 
-addpath(genpath('E:\Studie\Stage Neurobiologie\Controller')) % path to 'Controller path'
+addpath(genpath('F:\Studie\Stage Neurobiologie\Controller')) % path to 'Controller path'
 
 
 gapwidth = cell( size(files,1),2);
@@ -148,8 +145,8 @@ fprintf('done!\n');
 
 
 % Manage data for Single vs Multi whisker
-db.path_single_vs_multi = 'E:\Studie\Stage Neurobiologie\Videos\Whisker Deprivation mouse34';
-db.path_single_vs_multi_paper = 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Singe vs Multi';
+db.path_single_vs_multi = 'F:\Studie\Stage Neurobiologie\Videos\Whisker Deprivation mouse34';
+db.path_single_vs_multi_paper = 'F:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Singe vs Multi';
 db.name_video = '.dat';
 db.name_metadata = '.mat';
 
@@ -204,7 +201,11 @@ for i  = 1:size(files, 1)
          end
      end
      
-     
+     outname{end+1,1} = fname;
      
 end
+
+fprintf('saving excel file...');
+xlswrite( fullfile( db.base_name, 'overview.xlsx' ), outname);
+fprintf(' done\n');
 

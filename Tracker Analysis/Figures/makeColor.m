@@ -15,13 +15,14 @@ warning('off')
 cc = cbrewer('seq','YlGn',20);
 colors.tracker_light = cc(9,:);
 colors.tracker_dark = cc(12,:);
-colors.tracker_touch = cc(9,:);
-colors.tracker_touch_style = 'o';
+
+colors.tracker_touch_style = 'x';
 cc = cbrewer('div','RdYlGn',12);
 colors.manual_light = cc(4,:);
 colors.manual_dark = cc(2,:);
 colors.manual_touch = cc(4,:);
 colors.manual_touch_style = '^';
+colors.tracker_touch = cc(11,:);
 
 cc = cbrewer('seq','Oranges',20);
 colors.janelia_light = cc(9,:);
@@ -83,6 +84,13 @@ cmap = cbrewer('div','PRGn',20);
 colors.Single = cmap(3,:);
 cmap = cbrewer('div','BrBG',20);
 colors.Multi = cmap(17,:);
+
+cmap = cbrewer('div','PRGn',20);
+colors.Green = cmap(17,:);
+
+cmap = cbrewer('qual','Set1',9);
+colors.Yellow = cmap(6,:);
+
 
 warning('on')
 

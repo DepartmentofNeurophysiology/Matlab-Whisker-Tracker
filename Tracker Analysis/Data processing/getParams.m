@@ -25,10 +25,18 @@ function Parameters = getParams(Tracker,type)
 switch(type)
     case 'raw'
         Traces = Tracker.Traces;
-        nframes = min([size(Traces, 1), size(Tracker.Headvec,1)]);
+        if isfield(Tracker, 'Headvec')
+            nframes = min([size(Traces, 1), size(Tracker.Headvec,1)]);
+        else
+            nframes = size(Traces, 1);
+        end
     case 'clean'
         Traces = Tracker.Traces_clean;
-        nframes = min([size(Traces, 2), size(Tracker.Headvec,1)]);
+        if isfield(Tracker, 'Headvec')
+            nframes = min([size(Traces, 2), size(Tracker.Headvec,1)]);
+        else
+            nframes = size(Traces,2);
+        end
 end
 
 nparams = 8;

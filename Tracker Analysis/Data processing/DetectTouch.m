@@ -1,29 +1,30 @@
-function [Touch, TouchFiltered] = detectTouch(Traces, Edges, edgeIDX)
+function [Touch, TouchFiltered] = DetectTouch(Traces, Edges, edgeIDX)
 % Detect Traces endings within the target platform edge in
 % 'Edges', ridge specified as 'edgeIDX'
 
 %%
 edge_width = 25; % Roi width of detection
-max_dist = 5; % distance tip-edge (max) to detect touch 
-
+max_dist = 5:5:50; % distance tip-edge (max) to detect touch 
+ndist = length(max_dist);
 
 % Detect touch only around target platform
 
 mask = zeros(size(Edges));
 nframes = max(size(Traces));
 
-Touch = cell(1, nframes);
+Touch = cell(ndist, nframes);
+TouchPoints = cell(ndist,nframes);
 
 
+if ~isnan(edgeIDX(1))
+    for i = 1:length(edgeIDX)
 
-
-for i = 1:length(edgeIDX)
-    
-    if edgeIDX(i) <= edge_width | edgeIDX(i)+edge_width > size(mask,1)
-        continue
+        if edgeIDX(i) <= edge_width | edgeIDX(i)+edge_width > size(mask,1)
+            continue
+        end
+    mask(edgeIDX(i)-edge_width:edgeIDX(i)+edge_width,:) = 1;
+    Edges = Edges.*mask;
     end
-mask(edgeIDX(i)-edge_width:edgeIDX(i)+edge_width,:) = 1;
-Edges = Edges.*mask;
 end
 
 [Opts(:,1), Opts(:,2)] = find(Edges);
@@ -31,28 +32,35 @@ end
 
 h = waitbar(0, 'Detecting Touch');
 
-for i = 1:nframes    
-    looptouch = zeros(1, size(Traces{i}, 2));
-    looppoints = [];
-    for j = 1:size(Traces{i}, 2)
-        t = Traces{i}{j};
-        if isempty(t)
-            continue
+
+for i = 1:nframes   
+    
+    for distidx = 1:ndist
+        looptouch = zeros(1, size(Traces{i}, 2));
+        looppoints = [];
+        for j = 1:size(Traces{i}, 2)
+            t = Traces{i}{j};
+            if isempty(t)
+                continue
+            end
+
+            dist = Opts - t(end,:);       
+            dist = sqrt( sum( dist.^2, 2));
+            [~, tpt] = find(dist <= max_dist(distidx));
+
+            if ~isempty(tpt)
+                looptouch(j) = 1;
+                
+                looppoints(end+1,:) = Traces{i}{j}(end,:);
+            end
         end
-        
-        dist = Opts - t(end,:);       
-        dist = sqrt( sum( dist.^2, 2));
-        [~, tpt] = find(dist <= max_dist);
-        
-        if ~isempty(tpt)
-            looptouch(j) = 1;
-            looppoints(end+1,:) = Traces{i}{j}(end,:);
-        end
+
+
+        Touch{distidx,i} = looptouch;
+        TouchPoints{distidx,i} = looppoints;
     end
     
-
-    Touch{i} = looptouch;
-    TouchPoints{i} = looppoints;
+    waitbar(i/nframes)
 end
 
 close(h);
@@ -108,7 +116,5 @@ for i = 2:size(MatchNext, 2)
         
     end
 end
-
-
 
 

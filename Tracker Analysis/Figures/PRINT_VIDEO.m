@@ -25,6 +25,8 @@ function PRINT_VIDEO(varargin)
 %               'annotated', show frames with tracker annotations
 % FrameRange  - [a,b] , show frames in range a,b
 %
+% ROI       - display roi
+%
 % dExp      - Export video
 % dExpT     - 'avi' or 'gif', export video type
 %
@@ -59,6 +61,8 @@ addParameter(p,'FrameRange',[1,2])
 addParameter(p,'dExp', 0);
 addParameter(p,'dExpT', 'avi');
 addParameter(p,'FrameRate',30);
+
+addParameter(p,'ROI',0);
 parse(p, varargin{:});
 
 Files = dir(fullfile(p.Results.dPath,'*_compiled.mat'));
@@ -81,12 +85,12 @@ if ~isempty(p.Results.FileIndex)
     video_file = fullfile( Files(p.Results.FileIndex).folder, [Files(p.Results.FileIndex).name(1:end-13) Settings.video_extension]);
 elseif ~isempty(p.Results.FileName)
     fname = [p.Results.FileName '_compiled.mat'];
-    load(fullfile( p.Results.dPath, fname))
+    load( fullfile(p.Results.dPath, fname))
     Settings = Annotations.Settings;
-    video_file = fullfile(p.Results.dPath, [p.Results.FileName Settings.video_extension]);
+    video_file = [p.Results.FileName Settings.video_extension];
 end
 disp(video_file)
-Settings.Video = video_file;
+Settings.Video = fullfile(p.Results.dPath,video_file);
 
 
 
@@ -107,12 +111,13 @@ if p.Results.dMclean || p.Results.dMtouch;  Manual_clean = Annotations.Manual.Tr
 if p.Results.dMtouch;  Manual_touch = Annotations.Manual.Touch; end
 if p.Results.dTraw;    Tracker_raw = Annotations.Tracker.Traces; end
 if p.Results.dTclean || p.Results.dTtouch;  Tracker_clean = Annotations.Tracker.Traces_clean; end
-if p.Results.dTtouch;  Tracker_touch = Annotations.Tracker.Touch; end
+if p.Results.dTtouch;  Tracker_touch = Annotations.Tracker.Touch; touch_sens=4; end
+if p.Results.ROI; ROI = Annotations.Output.ROI; end
 
 
 if isfield(Annotations,'Tracker')
     gapwidth = abs(Annotations.Tracker.gapinfo.edge_1 - Annotations.Tracker.gapinfo.edge_2);
-    nframes = size(Annotations.Output.Traces, 1);
+    nframes = size(Annotations.Output.Nose, 1);
 else
     gapwidth = 200;
     keyboard % implement 'nframes'
@@ -183,14 +188,13 @@ end
 if p.Results.dExp
     switch(p.Results.dExpT)
         case 'avi'
-            vidname = [video_file(1:end-4) '_Annotated'];
+            vidname = fullfile(p.Results.dPath,[p.Results.FileName '_Annotated.avi']);
             vidout = VideoWriter(vidname, 'Motion JPEG AVI');
             vidout.FrameRate = p.Results.FrameRate;
             open(vidout)
             
         case 'gif'
-            vidname = fullfile(Files(p.Results.FileIndex).folder, ...
-                [Files(p.Results.FileIndex).name(1:end-13) '_Annotated.gif']);
+            vidname = [p.Results.FileName '.gif'];
             
     end
 end
@@ -210,6 +214,9 @@ for id = 1:length(display.show_frames)
     
     Settings.Current_frame = frame_index;
     frame = LoadFrame(Settings);
+    frame = im2double( abs(frame));
+    frame = imadjust(frame, [], [], 1);
+    frame = adapthisteq(frame, 'NBins', 256, 'NumTiles',[5 5]);
     
     
     cla(display.ax1);
@@ -340,16 +347,31 @@ for id = 1:length(display.show_frames)
     if p.Results.dTclean
         for j = 1:size(Tracker_clean{frame_index}, 2)
             trace = Tracker_clean{frame_index}{j};
-            plot(display.(p.Results.Tax),trace(:,2), trace(:,1),'color',Colors.tracker_light)
+            plot(display.(p.Results.Tax),trace(:,2), trace(:,1),'color',Colors.Red)
         end
     end
     if p.Results.dTtouch
-        idx = find(Tracker_touch{frame_index});
+        idx = find(Tracker_touch{touch_sens,frame_index});
         for j = 1:length(idx)
             pt = Tracker_clean{frame_index}{idx(j)}(end,:);
-            scatter(display.(p.Results.Tax),pt(2), pt(1),'MarkerFaceColor',Colors.tracker_touch,...
+            scatter(display.(p.Results.Tax),pt(2), pt(1),60,'MarkerFaceColor',Colors.tracker_touch,...
                 'MarkerEdgeColor',Colors.tracker_touch,'Marker',Colors.tracker_touch_style)
         end
+    end
+
+    if p.Results.ROI
+                
+        y1 = mean(ROI(1:2,2));
+        y2 = mean(ROI(3:4,2));
+        x1 = mean([ROI(1,1) ROI(4,1)]);
+        x2 = mean([ROI(2:3,1)]);
+        
+        line(display.ax1,[x1 x2],[y1 y1],'color',Colors.Yellow,'LineWidth',2,'LineStyle','--')
+        line(display.ax1,[x1 x1],[y1 y2],'color',Colors.Yellow,'LineWidth',2,'LineStyle','--')
+        line(display.ax1,[x2 x2],[y1 y2],'color',Colors.Yellow,'LineWidth',2,'LineStyle','--')
+        line(display.ax1,[x1 x2],[y2 y2],'color',Colors.Yellow,'LineWidth',2,'LineStyle','--')
+        
+        
     end
     
     text(display.ax1,10,10,num2str(frame_index),'color','r','BackgroundColor','k')

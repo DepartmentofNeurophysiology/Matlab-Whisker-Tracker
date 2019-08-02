@@ -413,7 +413,14 @@ function exportSettings(~,~,f)
 handles = guidata(f);
 Settings = handles.Settings;
 Settings = orderfields(Settings); %#ok<NASGU>
-save('Settings\Settings.mat','Settings')
+
+funcpath = split(which('ParameterSetup'),'\');
+savepath = funcpath{1};
+for i = 2:length(funcpath)-1
+    savepath = [savepath '\' funcpath{i}];
+end
+
+save([savepath '\' 'Settings\Settings.mat'],'Settings')
 end
 
 function exitFig(~,~,f)

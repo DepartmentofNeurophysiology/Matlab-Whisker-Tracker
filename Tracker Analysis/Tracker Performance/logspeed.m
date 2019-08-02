@@ -1,5 +1,4 @@
 function timer = logspeed(timer, buffersize)
-
 if isempty(timer)
     timer.buffer(1:buffersize) = NaN;
     return

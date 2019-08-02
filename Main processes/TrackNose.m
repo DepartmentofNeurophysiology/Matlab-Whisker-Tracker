@@ -7,30 +7,35 @@ function Output = TrackNose(Settings,Output)
 
 %%
 
-Default_direction = [];
-if exist(fullfile(Settings.PathName, 'Selected_frames.mat'), 'file')
-    dataIn = load(fullfile(Settings.PathName, 'Selected_frames.mat'));
-    id = [];
-    for i = 1:size(dataIn.Output, 2)
-        if strcmp(Settings.FileName, dataIn.Output(i).Video)
-            id = i;
-        end
-    end
-    
-    if ~isempty(id)
-        if isfield(dataIn.Output(id), 'Direction')
-            if ~isempty(dataIn.Output(id).Direction)
-                if dataIn.Output(id).Direction == 1
-                    Default_direction = 'Up';
-                elseif dataIn.Output(id).Direction == 2
-                    Default_direction = 'Down';
-                end
+
+if isfield(Settings,'DefaultDirection') && ~isempty(Settings.DefaultDirection)
+    Default_direction = Settings.DefaultDirection;
+else
+    Default_direction = [];
+    if exist(fullfile(Settings.PathName, 'Selected_frames.mat'), 'file')
+        dataIn = load(fullfile(Settings.PathName, 'Selected_frames.mat'));
+        id = [];
+        for i = 1:size(dataIn.Output, 2)
+            if strcmp(Settings.FileName, dataIn.Output(i).Video)
+                id = i;
             end
         end
-        
+
+        if ~isempty(id)
+            if isfield(dataIn.Output(id), 'Direction')
+                if ~isempty(dataIn.Output(id).Direction)
+                    if dataIn.Output(id).Direction == 1
+                        Default_direction = 'Up';
+                    elseif dataIn.Output(id).Direction == 2
+                        Default_direction = 'Down';
+                    end
+                end
+            end
+
+        end
     end
 end
-    
+
 
 
 % Extract variables
@@ -40,6 +45,9 @@ frameidx = 1:stepsize:nframes;
 Base(1:length(frameidx),1:2) = NaN;
 
 % Extract centre of mass (Base) for frames
+O = Output.Objects;
+O = imdilate(O,strel('diamond',3));
+
 
 h = waitbar(0,'Tracking Nose');
 for i = 1:length(frameidx)
@@ -69,8 +77,8 @@ for i = 1:length(frameidx)
     Frame = Frame./max(max(Frame));
     
     SLN = zeros(size(Frame));
-    SLN(Frame <= Settings.Shape_threshold) = 1;
-    SLN(Output.Objects == 1) = 0;
+    SLN(Frame <= Settings.Shape_threshold) = 1;    
+    SLN(O==1) = 0;
     
 %     FM = imdilate(SLN, strel('diamond', 5));
 %     FM = imerode(FM, strel('diamond', 45));
@@ -80,7 +88,7 @@ for i = 1:length(frameidx)
 
     
     % Only continue if mouse is present in Frame
-    if numel(find(Frame)) < 3000  
+    if numel(find(Frame)) < 5  
         waitbar(i/(2*length(frameidx)))
         continue
     end
@@ -128,6 +136,8 @@ if base_slope(1) < 0
     Direction = 'Up';
 elseif base_slope(1) > 0
     Direction = 'Down';
+elseif base_slope(1) == 0
+    Direction = 'Up';
 end
 
 if ~isempty(Default_direction)
@@ -176,13 +186,14 @@ for i = 1:length(frameidx)
     
     SLN = zeros(size(Frame));
     SLN(Frame <= Settings.Shape_threshold) = 1;
-    SLN(Output.Objects == 1) = 0;
+    SLN(O == 1) = 0;
     
-    FM = imdilate(SLN, strel('diamond', 5));
-    FM = imerode(FM, strel('diamond', 45));
-    FM = imdilate(FM, strel('diamond', 55));
+    FM = imdilate(SLN, strel('diamond', 1));
+    %FM = imerode(FM, strel('diamond', 45));
+    %FM = imdilate(FM, strel('diamond', 55));
     
-    Frame = SLN.*FM;    
+    Frame = SLN.*FM;  
+    
     f_sum = sum(Frame ,f_idx)./ size(Frame, f_idx);
     switch(Direction)
         case 'Up'
@@ -272,27 +283,67 @@ for i = 1:length(frameidx)
     
         waitbar((length(frameidx)+i)/(2*length(frameidx)))
 
+    
    
 end
 
 close(h);
 %% Fit data
+n = 20;
 track_idx = 1:stepsize:nframes;
 keep = find(~isnan( Nose_raw(:,1)));
+if isempty(keep)
+    Nose(1:nframes,1:2) = NaN;
+    AngleVec(1:nframes,1:2) = NaN;
+    Output.Direction = Direction;
+    Output.Nose = Nose;
+    Output.AngleVector = AngleVec;
+    return
+end
+       
+    
 track_idx = track_idx(keep);
 fitax = track_idx(1):track_idx(end);
 Nose(1:nframes,1:2) = NaN;
-Nose(fitax,1) = spline(track_idx , Nose_raw( keep, 1), fitax);
-Nose(fitax,2) = spline(track_idx , Nose_raw( keep, 2), fitax);
+sfitX = spline(track_idx , Nose_raw( keep, 1), fitax);
+sfitY = spline(track_idx , Nose_raw( keep, 2), fitax);
+Nose(fitax,1) = filter( ones(1,n)/n, 1, sfitX);
+Nose(fitax,2) = filter( ones(1,n)/n, 1, sfitY);
 
+AngleVec(1:nframes,1:2) = NaN;
+Araw = AngleVector;
+
+meanX = mean(Araw(:,1),'omitnan');
+stdX = std(Araw(:,1), 'omitnan');
+
+meanY = mean(Araw(:,2), 'omitnan');
+stdY = std(Araw(:,2), 'omitnan');
+
+Arawf = Araw;
+Arawf( abs(Araw(:,1)-meanX) > 3*stdX   ,:) = NaN;
+Arawf( abs(Araw(:,2)-meanY) > 3*stdY   ,:) = NaN;
 
 track_idx = 1:stepsize:nframes;
-keep = find(~isnan(AngleVector(:,1)));
+dTheta = diff(Arawf,1);
+dT =diff(track_idx)';
+slope(:,1) = dTheta(:,1)./dT;
+slope(:,2) = dTheta(:,2)./dT;
+slope(end+1,:) = 0;
+
+keep = find(~isnan(Nose_raw(:,1)) & ~isnan(Arawf(:,1)) & abs(slope(:,1)) < 1 & abs(slope(:,2))<1);
+track_idx = 1:stepsize:nframes;
 track_idx = track_idx(keep);
-fitax = track_idx(1): track_idx(end);
-AngleVec(1:nframes,1:2) = NaN;
-AngleVec(fitax,1) = spline(track_idx, AngleVector( keep, 1), fitax);
-AngleVec(fitax,2) = spline(track_idx, AngleVector( keep, 2), fitax);
+if numel(find(~isnan(AngleVector))) > 4
+    
+    sfitX = spline(track_idx, Arawf(keep,1), fitax);
+    sfitY = spline(track_idx, Arawf(keep,2), fitax);
+
+    AngleVec(fitax,1) = filter( ones(1,n)/n, 1, sfitX );
+    AngleVec(fitax,2) = filter( ones(1,n)/n, 1, sfitY );
+end
+
+%%
+
 
 
 Output.Direction = Direction;
@@ -303,4 +354,9 @@ Output.AngleVector = AngleVec;
 
 
 
+
+
+
+
+%%
 

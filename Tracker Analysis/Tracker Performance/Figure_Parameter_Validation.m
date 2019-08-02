@@ -1,8 +1,10 @@
 warning('off')
 c = makeColor();
 
-if exist('E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance\Data_Figure_Par_Eval.mat','file')
-    load('E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance\Data_Figure_Par_Eval.mat')
+VideoDatabase =  'F:\Studie\Stage Neurobiologie\Videos\VideoDatabase\';
+
+if exist(fullfile(VideoDatabase,'Tracker Performance\Data_Figure_Par_Eval.mat'),'file')
+    load(fullfile(VideoDatabase,'Tracker Performance\Data_Figure_Par_Eval.mat'))
 else    
     Data_Figure_Parameter_Validation;
 end

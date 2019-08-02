@@ -121,7 +121,7 @@ for file_index = 1:length(FilesToAdd)
     meta_file = fullfile( PathName, [BaseName '.mat']);
     
     % Tracker data
-    tracker_file = fullfile( PathName, [BaseName '.mat']);
+    tracker_file = fullfile( PathName, [BaseName '_Annotations_Tracker.mat']);
     
     % Manual data
     manual_file = fullfile( PathName, [BaseName '_Annotations.mat']);
@@ -150,8 +150,8 @@ for file_index = 1:length(FilesToAdd)
         %continue
     end
     %}
-    fprintf('\n\t Structs added')  
-    disp(tracker_file)
+    %fprintf('\n\t Structs added')  
+    
     if any(strcmp('Tracker', p.Results.Data)) && exist(tracker_file, 'file')        
         tracker_structs = who('-file', tracker_file);
         if any(strcmp('Output',tracker_structs)) & any(strcmp('Settings',tracker_structs))
@@ -164,14 +164,17 @@ for file_index = 1:length(FilesToAdd)
             Tracker.Objects = Output.Objects;
             Tracker.Edges = Output.Edges;
             
-            Tracker.Direction = Output.Direction;
-            Tracker.Nose = Output.Nose;
-            Tracker.Headvec = Output.AngleVector; % Angle of head w.r.t. frame
-            
+            if Settings.track_nose
+                Tracker.Direction = Output.Direction;
+                Tracker.Nose = Output.Nose;
+                Tracker.Headvec = Output.AngleVector; % Angle of head w.r.t. frame
+            end
+           
             Tracker.Traces = Output.Traces;
             Tracker.Parameters = getParams(Tracker, 'raw');
             
             Tracker.gapinfo = Output.gapinfo;
+            
             if isfield(Output,'Nose')
                 % Find specifications of gap
                
@@ -179,7 +182,7 @@ for file_index = 1:length(FilesToAdd)
             end
             
             % Parameterize Traces
-            % Tracker.Parameters = getParams(Tracker,'raw');
+            Tracker.Parameters = getParams(Tracker,'raw');
             
             % Clean Traces
             Tracker.Traces_clean = fitTraces(Tracker.Traces);
@@ -197,21 +200,29 @@ for file_index = 1:length(FilesToAdd)
                 edgeIDX =[Tracker.gapinfo.edge_1, Tracker.gapinfo.edge_2];
             end
             
-            %[Tracker.Touch, Tracker.TouchFiltered] = detectTouch(Tracker.Traces_clean, Tracker.Edges, edgeIDX);
+            if isfield(Output, 'ObjectsTouch')
+                
+                [Tracker.Touch, Tracker.TouchFiltered] = DetectTouch(Tracker.Traces_clean, Output.ObjectsTouch, [NaN NaN]);
+            else              
+                [Tracker.Touch, Tracker.TouchFiltered] = DetectTouch(Tracker.Traces_clean, Tracker.Edges, edgeIDX);
+            end
             
             
             Annotations.Output = Output;
             Annotations.Settings = Settings;
             Annotations.Tracker = Tracker;
-            fprintf(' - Tracker');
+            fprintf(' - Tracker\n');
+            
             
         else
             fprintf(' - Tracker file incomplete')
         end
         
     elseif any(strcmp('Tracker', p.Results.Data))
-        fprintf(' - Tracker not found');
+        fprintf(' - Tracker not found\n');
+        disp(tracker_file)
     end
+    
     
     
     
@@ -250,6 +261,7 @@ for file_index = 1:length(FilesToAdd)
     
     
     save(save_file , 'Annotations')
+    
     fprintf(' - data saved\n')
     
 end

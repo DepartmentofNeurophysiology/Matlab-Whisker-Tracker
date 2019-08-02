@@ -1,3 +1,41 @@
+function v_touch()
+
+[FileName, PathName] = uigetfile('*.avi');
+
+%%
+Settings.Video = fullfile(PathName, FileName);
+Settings.Video_object = VideoReader(Settings.Video);
+Settings.Nframes = Settings.Video_object.Duration * Settings.Video_object.FrameRate;
+%%
+h = 500;
+f = figure(1);
+f.Position = [100 100 h h*(Settings.Video_object.Height/Settings.Video_object.Width)];
+ax = axes(f);
+ax.Position = [0 0 1 1];
+TouchFlag = zeros(1, Settings.Nframes);
+for i = 1:Settings.Nframes
+    Settings.Current_frame = i;
+    frame = LoadFrame(Settings);
+    
+    imagesc(ax, frame);
+    colormap('gray')  
+    w = waitforbuttonpress;
+    key = f.CurrentCharacter;    
+    if key == 'y'
+        TouchFlag(i) = 1;
+    elseif key == 'q'
+        break
+    else
+        TouchFlag(i) = 0;
+    end
+    fprintf('%s\n',key)
+   
+end
+   
+
+save(fullfile(PathName, [FileName(1:end-4) '_touches']), 'TouchFlag')
+close(f)   
+
 function frame = LoadFrame(Settings)
 % frame = LoadFrame(Settings)
 % Load a video frame using specifications in a Settings struct:
@@ -56,3 +94,5 @@ switch(extension)
 end
 
 
+
+   

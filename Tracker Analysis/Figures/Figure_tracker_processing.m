@@ -3,12 +3,12 @@ clc
 close all
 warning('off')
 
-video = 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance\M46_R01_02.dat';
-comp = 'E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance\M46_R01_02_compiled.mat';
+video = 'F:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance\M46_R01_02.dat';
+comp = 'F:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Tracker Performance\M46_R01_02_compiled.mat';
 
 load(comp)
 Settings = Annotations.Settings;
-
+Settings.Video(1) = 'F';
 cmap = makeColor();
 
 nframes = Settings.Nframes;

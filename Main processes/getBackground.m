@@ -56,9 +56,7 @@ end
 edge_threshold = tax(idx)-0.02;
 
 
-Edges = zeros(512, 640);
-%Edges(H < Settings.Edges_threshold) = 1;
-Edges(H < edge_threshold) = 1;
+
 
 
 Background = sumFrames./100;
@@ -66,8 +64,13 @@ Background = Background - min(min(Background));
 Background = Background ./ max(max(Background));
 Background(Background > Settings.Background_threshold) = 0;
 Objects = zeros(size(Background));
-
 Objects(Background > 0) = 1;
+
+Edges = zeros(size(Background));
+%Edges(H < Settings.Edges_threshold) = 1;
+Edges(H < edge_threshold) = 1;
+
+
 Results = Costumbackground(Objects, Edges);
 
 

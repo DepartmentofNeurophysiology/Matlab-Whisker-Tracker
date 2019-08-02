@@ -34,7 +34,7 @@ ax5 = axes(f,'Units', 'points', 'Position', [x y ax_width ax_heigth]);
 
 %
 
-load('E:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Singe vs Multi\DataFigBeh.mat')
+load('F:\Studie\Stage Neurobiologie\Videos\VideoDatabase\Singe vs Multi\DataFigBeh.mat')
 
 c = makeColor;
 

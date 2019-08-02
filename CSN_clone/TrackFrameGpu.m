@@ -1,4 +1,4 @@
-function [TracesOut, Misc] = TrackFrame(Settings, Data)
+function [TracesOut, Misc] = TrackFrameGpu(Settings, Data)
 %% Traces = TrackFrame(Settings, Objects)
 % Track raw traces in a frame using user defined traces
 % Input:
@@ -35,7 +35,9 @@ Frame = LoadFrame(Settings);
 Frame = im2double(Frame);
 Frame = imadjust(Frame, [],[], Settings.Gamma);
 
-Misc = struct();
+%%
+Frame = gpuArray(Frame);
+
 if Settings.doGaussian
     % Make gaussian kernel
     kfil = zeros(1, Settings.Gaussian_kernel_size);
@@ -43,14 +45,15 @@ if Settings.doGaussian
     kfil(ceil(Settings.Gaussian_kernel_size/2)+1:end) = max(kfil)-1:-1:1;
     Kgaus = repmat(kfil,[Settings.Gaussian_kernel_size, 1]) + repmat(kfil,[Settings.Gaussian_kernel_size, 1])';
     Kgaus = Kgaus./ sum(sum(Kgaus));
+    Kgaus = gpuArray(Kgaus);
     
     % Convolute frame with gaussian
     Frame = conv2(Frame, Kgaus, 'same');
 end
-
+%%
 
 % Enhance contrast, normalize data
-Frame = adapthisteq(Frame, 'NBins',256,'NumTiles',[5 5]);
+Frame = histeq(Frame, 256);
 minval = min(min(Frame));
 Frame = Frame - minval;
 Frame = Frame./max(max(Frame));
@@ -131,11 +134,11 @@ end
 
 % Track Traces
 bufferSize = 100; % max nr of points on a trace
-Traces = ones(2, size(Seeds,1), bufferSize);
+Traces = gpuArray(ones(2, size(Seeds,1), bufferSize));
 Traces(:, :, 1) = Seeds(:, 1:2)';
 
 
-Finished = zeros(1, size(Seeds,1)); % Keep track of finished seeds
+Finished = gpuArray(zeros(1, size(Seeds,1))); % Keep track of finished seeds
 trace_on_edges = zeros(1, size(Seeds,1)); % Keep track of traces on edges
 
 
@@ -211,7 +214,7 @@ for i = 2:bufferSize
     % LINEAR EXTRAPOLATION
     %
     %
-    if i < 1000000
+    if i < 1000
         Finished(Control(Roi(Local_min)) == 0.5) =  Finished(Control(Roi(Local_min)) == 0.5) + 1;
     elseif any(Control(Roi(Local_min)) == 0.5)
         
